@@ -19,13 +19,13 @@ flowchart LR
     end
 
     subgraph cds["С CODESYS: Windows, CODESYS 3.5.17.30"]
-        imp["tools/codesys/import_sources.py"]
+        imp["cds.py import<br/>tools/codesys/import_sources.py"]
         proj["Проект CODESYS<br/>.project — не в git"]
-        bld["tools/codesys/build.py"]
-        run["tools/codesys/run_tests.py"]
+        bld["cds.py build<br/>tools/codesys/build.py"]
+        run["cds.py test<br/>tools/codesys/run_tests.py"]
         ctrl["CODESYS Control Win V3"]
         cf["CfUnit: PRG_Tests"]
-        exp["tools/codesys/export_sources.py"]
+        exp["cds.py export<br/>tools/codesys/export_sources.py"]
     end
 
     rep["docs/TEST_REPORT.md"]
@@ -53,7 +53,7 @@ flowchart LR
 |---|---|
 | `src/` | исходники приложения: DUT, GVL, интерфейсы, POU с методами и свойствами |
 | `tests/` | наборы тестов CfUnit (coUnit 1.2.0.0, пространство имён `coUnit`) и `PRG_Tests` в той же раскладке; при импорте попадают в папку проекта `Tests` |
-| `tools/` | `assemble.py`, `check/` (линтер, запуск iec_checker и RuSTy), `codesys/` (скрипты CODESYS Scripting, IronPython 2.7) |
+| `tools/` | `assemble.py`, `check/` (линтер, запуск iec_checker и RuSTy), `codesys/` (`cds.py` — командная строка CODESYS на Python 3; скрипты CODESYS Scripting, IronPython 2.7; `config.json`) |
 | `docs/` | документация, отчёты проверок, шаблоны ТЗ и ПМИ |
 | `build/` | артефакты сборки и проверок, в git не хранится |
 
