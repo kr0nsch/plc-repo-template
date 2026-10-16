@@ -348,19 +348,28 @@ def test_run_main_merges_step_error_data(tmp_path: Path, monkeypatch: pytest.Mon
 # ---------------------------------------------------------------------------
 
 
-def test_template_library_config(tmp_path: Path) -> None:
-    root = tmp_path / "plc-repo-template"
+def repo_library_raw() -> dict[str, Any]:
+    """Секция library из config.json этой рабочей копии (в проектах она своя)."""
+    cfg_path = Path(__file__).resolve().parents[1] / "codesys" / "config.json"
+    raw: dict[str, Any] = json.loads(cfg_path.read_text(encoding="utf-8"))["library"]
+    return raw
+
+
+def test_repo_library_config(tmp_path: Path) -> None:
+    raw = repo_library_raw()
+    version = raw["version"]["default"] if isinstance(raw["version"], dict) else raw["version"]
+    root = tmp_path / "some-checkout"
     lib_cfg = settings_for(root).library_config()
     info = lib_cfg["info"]
-    assert info["title"] == "plc-repo-template" and info["company"] == "plc-portfolio"
-    assert info["version"] == "0.1.0.0" and info["default_namespace"] == "TPL"
-    assert info["released"] is False and info["placeholder"] is None
-    assert lib_cfg["path"] == root / "build" / "plc-repo-template.library"
-    assert lib_cfg["compiled_path"] == root / "build" / "plc-repo-template.compiled-library"
-    assert lib_cfg["exclude"] == ["PRG_Main"] and lib_cfg["libraries"] == []
-    assert lib_cfg["label"] == "plc-repo-template, 0.1.0.0 (plc-portfolio)"
+    assert info["title"] == raw["title"] and info["company"] == raw["company"]
+    assert info["version"] == version and info["default_namespace"] == raw["default_namespace"]
+    assert info["released"] is raw["released"] and info["placeholder"] == raw["placeholder"]
+    assert lib_cfg["path"] == root / "build" / f"{root.name}.library"
+    assert lib_cfg["compiled_path"] == root / "build" / f"{root.name}.compiled-library"
+    assert lib_cfg["exclude"] == raw["exclude"] and lib_cfg["libraries"] == raw["libraries"]
+    assert lib_cfg["label"] == f"{raw['title']}, {version} ({raw['company']})"
     # название и компания не зависят от каталога рабочей копии (git worktree)
-    assert settings_for(tmp_path / "wt-feature").library_config()["info"]["title"] == "plc-repo-template"
+    assert settings_for(tmp_path / "wt-feature").library_config()["info"]["title"] == raw["title"]
 
 
 def test_library_config_env_and_validation(tmp_path: Path) -> None:
@@ -842,7 +851,7 @@ def test_cmd_library_uninstall(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr(cli, "run_codesys", fake_run)
     args = cli.build_parser().parse_args(["library", "--uninstall", "--all-versions"])
     assert cli.cmd_library(s, args) == cli.EXIT_OK
-    assert jobs[0]["steps"][0]["versions"] == [] and jobs[0]["steps"][0]["title"] == "plc-repo-template"
+    assert jobs[0]["steps"][0]["versions"] == [] and jobs[0]["steps"][0]["title"] == repo_library_raw()["title"]
     assert cli.load_install_registry(cli.install_registry_path(s)) == {}
 
 
