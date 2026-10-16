@@ -75,6 +75,8 @@ CODESYS Control Win V3, запущенном пользовательским п
 | `python tools/codesys/cds.py roundtrip` | импорт → экспорт → побайтное сравнение с `src/` и `tests/` |
 | `python tools/codesys/cds.py export` | после правок в IDE: проект → `src/` (до коммита) |
 | `python tools/codesys/cds.py report` | итоги прогона → `docs/TEST_REPORT.md` |
+| `python tools/codesys/cds.py library --install` | `src/` → библиотека `build/<имя>.library` и установка в репозиторий библиотек |
+| `python tools/codesys/cds.py deps` | библиотеки-зависимости: проверка, установка, сборка в соседних репозиториях |
 | `python tools/codesys/cds.py runtime status` | рантайм; также `start`, `stop`, `restart`, `init` |
 
 Путь к CODESYS и профиль — переменные `CODESYS_EXE`, `CODESYS_PROFILE` (без них — стандартный путь
@@ -92,7 +94,8 @@ CODESYS Control Win V3, запущенном пользовательским п
 2. Заменить плейсхолдеры `<ИМЯ ФАМИЛИЯ>` и `<GITHUB_USER>` (LICENSE, README, CONTRIBUTING.md, заголовки ST):
    `git grep -n -e "<ИМЯ ФАМИЛИЯ>" -e "<GITHUB_USER>"`.
 3. Удалить пример (`FB_Example`, `ST_Example*`, константы `EXAMPLE_*`) или переименовать под задачу.
-4. Обновить `CHANGELOG.md`, `docs/ASSUMPTIONS.md` и `tools/codesys/config.json`.
+4. Обновить `CHANGELOG.md`, `docs/ASSUMPTIONS.md` и `tools/codesys/config.json` (для библиотеки —
+   раздел `library`: название, компания, версия, пространство имён).
 
 ## Зеркало на GitVerse или GitFlic
 
