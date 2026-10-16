@@ -1,5 +1,8 @@
 # CI шаблона ПЛК-репозитория: проверки, которым не нужен CODESYS.
-# Сборка и тесты в CODESYS выполняются на Windows вручную (docs/MANUAL_STEPS.md).
+# Сборка и тесты в CODESYS выполняются на Windows вручную (docs/MANUAL_STEPS.md, раздел 5):
+# cds.py build (объекты, достижимые из задач), cds.py check --tests (полная проверка компиляции:
+# все объекты src/ и tests/), cds.py test, cds.py roundtrip. Для раннера Windows с CODESYS — те же
+# четыре команды: код выхода 0 или 1, ошибки — с файлом и строкой (build/build.log, build/check.log).
 name: CI
 
 on:

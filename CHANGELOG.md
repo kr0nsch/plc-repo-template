@@ -39,6 +39,35 @@
 - Документы: архитектура, ручные шаги, допущения, отчёты статанализа и тестов, шаблоны ТЗ
   (ГОСТ 34.602-2020) и ПМИ.
 - `LICENSE` (MIT), `.gitignore`, `.gitattributes`, `.editorconfig`.
+- `cds.py check [--tests]`: компиляция всех объектов `src/` (и `tests/`) — и тех, что не достижимы из
+  задач и которые `build` не компилирует (программа без задачи, ФБ без экземпляра, неиспользуемый
+  DUT): «Проверить все объекты пула» в проекте без устройства, проект на диск не пишется; ошибки — с
+  файлом и строкой, код 1. Библиотеки — те же, что у `build`: ссылки из `config.json` и копии ссылок,
+  которые добавляет само устройство (`#IoStandard`, `#CAA Device Diagnosis`, ...). Persistent
+  Variables проверяются как GVL. Рекомендуемая полная проверка — `build`, `check --tests`, `test`,
+  `roundtrip` (`docs/MANUAL_STEPS.md`, раздел 5). Проверено в CODESYS 3.5.17.30.
+- Библиотека Standard по умолчанию: в `config.json` ключ `standard` (плейсхолдер `#Standard`, версию
+  задаёт профиль, явные `namespace: Standard` и `qualified_only: false` — доступ и `TON`, и
+  `Standard.TON`, как в проекте IDE) в `library.libraries`, то есть во всех режимах, в `check` и в
+  библиотеке репозитория. Проверено в CODESYS 3.5.17.30 (TON, R_TRIG, CTU, CONCAT в режимах normal,
+  test и library).
+- `tools/tests/test_cds_config.py`: `config.json` репозитория проверяется на уровне схемы (разделы и
+  ключи — как у эталона `tools/tests/fixtures/config_template.json`, описания режимов, задач и
+  библиотек полные и разрешаются).
+
+### Changed
+
+- Тесты `tools/tests/test_cds.py` и `test_cds_library.py` берут настройки из эталона
+  `tools/tests/fixtures/config_template.json`, а не из `config.json` репозитория: проект может менять
+  свои библиотеки, задачи и библиотеку репозитория без исключения тестов шаблона (`--deselect`).
+  Проекту, который исключал их раньше, после обновления `tools/` исключения `test_cds.py` и
+  `test_cds_library.py` в `pyproject.toml` и свои тесты-замены для них нужно убрать: тесты-замены,
+  подменявшие `config.json` в модулях тестов шаблона, с новыми тестами не работают (проверено на копии
+  s7-to-codesys: 7 падений замены, а сами тесты шаблона и `test_cds_config.py` проходят с его
+  `config.json`).
+- `cds.py import`, `library`, `check`: два описания `libraries`, которые нашли одну библиотеку, дают
+  одну ссылку (одинаковые сливаются с предупреждением, разные — отказ до открытия проекта, код 1);
+  ссылки Library Manager после импорта — в поле `references` отчёта `build/import.json`.
 
 ### Fixed
 

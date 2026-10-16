@@ -117,9 +117,26 @@ setx CODESYS_PROFILE "CODESYS V3.5 SP17 Patch 3"
 | `python tools/codesys/cds.py import --tests` | `src/` и `tests/` → `build/<имя>-tests.project` (TestTask 10 мс → `PRG_Tests`, coUnit) |
 | `python tools/codesys/cds.py build` | импорт и полная сборка: `build/build.log`, `build/build.json` |
 | `python tools/codesys/cds.py build --tests` | то же для тестового проекта |
+| `python tools/codesys/cds.py check` | компиляция **всех** объектов `src/`, в том числе тех, что не вызывает ни одна задача: `build/check.log`, `build/check.json` |
+| `python tools/codesys/cds.py check --tests` | то же для `src/` и `tests/` |
 | `python tools/codesys/cds.py test` | импорт с тестами, сборка, прогон в рантайме |
 | `python tools/codesys/cds.py roundtrip` | импорт в чистый проект → экспорт → сравнение с `src/` и `tests/` |
 | `python tools/codesys/cds.py report` | итоги последнего `test` → `docs/TEST_REPORT.md` |
+
+**Рекомендуемая полная проверка** (перед коммитом и релизом, в каждом репозитории портфолио):
+
+```bat
+python tools\codesys\cds.py build
+python tools\codesys\cds.py check --tests
+python tools\codesys\cds.py test
+python tools\codesys\cds.py roundtrip
+```
+
+`build` компилирует только объекты, достижимые из задач: ошибка в программе без задачи, в ФБ без
+экземпляра, его методах или в неиспользуемом DUT даёт в `build` «0 ошибок» (проверено). Такие
+ошибки находит `check`: он компилирует все объекты раскладки с теми же библиотеками, что у `build`
+(из `config.json` и библиотеки устройства), проект проверки на диск не пишется, проекты `import` не
+меняются. `check` не заменяет `build`: в нём нет задач и конфигурации ввода-вывода.
 
 Что смотреть:
 
@@ -131,6 +148,11 @@ setx CODESYS_PROFILE "CODESYS V3.5 SP17 Patch 3"
   [BUILD_ERRORS.md](BUILD_ERRORS.md). Перед открытием проекта `cds.py` удаляет кэш предкомпиляции
   `build/<имя>_project.precompilecache`: с ним CODESYS 3.5.17.30 после замены объявления ФБ с
   методами собирал старый текст (сломанное объявление — «0 ошибок», исправленное — старая ошибка).
+- `check`: те же сообщения с файлом и строкой, что у `build`, например
+  `src/POUs/Orphans/PRG_Orphan/PRG_Orphan.impl.st:2: Error C0032 Невозможно конвертировать тип 'DINT' в тип 'INT'`,
+  и итог «все объекты src/ и tests/ скомпилированы без ошибок (N объектов)». Ошибки синтаксиса
+  останавливают компиляцию до проверки типов: ошибки типов в других объектах появятся после их
+  исправления — повторите `check`.
 - `test` перед прогоном удаляет `build/test-results.json` и `build/junit.xml` прошлого запуска:
   при ошибке сборки или входа в рантайм старые зелёные результаты не остаются.
 - `test`: итог по наборам и тестам; упавшие — с сообщением coUnit. Результаты — в
@@ -138,7 +160,12 @@ setx CODESYS_PROFILE "CODESYS V3.5 SP17 Patch 3"
 - `roundtrip`: «экспорт совпадает с src/ и tests/ побайтно» и «повторный импорт … — 0 изменений».
   Любой дифф — ошибка скриптов (issue).
 
-Коды выхода: 0 — успех; 1 — ошибки раскладки или сборки, упавшие тесты, дифф roundtrip;
+Библиотека Standard (TON, R_TRIG, CTU, CONCAT) подключена по умолчанию — плейсхолдером
+`#Standard` через `library.libraries` в `tools/codesys/config.json`: версию задаёт профиль CODESYS,
+работают и `TON`, и `Standard.TON`, как в проекте, созданном в IDE
+([tools/README.md](../tools/README.md#standard-по-умолчанию)).
+
+Коды выхода: 0 — успех; 1 — ошибки раскладки, сборки или проверки всех объектов, упавшие тесты, дифф roundtrip;
 2 — аргументы или `config.json`; 3 — окружение (нет CODESYS, рантайма, файла); 4 — таймаут;
 5 — блокировка занята. Рантайм один на машину: команды, которые с ним работают, ждут друг друга
 (блокировка `%LOCALAPPDATA%\plc-tools\codesys-runtime.lock`).
@@ -199,7 +226,8 @@ setx CODESYS_PROFILE "CODESYS V3.5 SP17 Patch 3"
 
 ### 7.1. Выпуск релиза
 
-1. `python tools\codesys\cds.py build` — 0 ошибок; `python tools\codesys\cds.py test` — тесты зелёные.
+1. `python tools\codesys\cds.py build` и `python tools\codesys\cds.py check --tests` — 0 ошибок;
+   `python tools\codesys\cds.py test` — тесты зелёные; `python tools\codesys\cds.py roundtrip` — без диффа.
 2. Версия: `library.version` в `tools/codesys/config.json` (четыре числа, `1.2.0.0`) и запись в
    `CHANGELOG.md`. Компанию (`library.company`) и название (`library.title`) после первого релиза не
    меняйте: по тройке «компания, название, версия» библиотеку находят проекты-потребители.
@@ -215,8 +243,8 @@ setx CODESYS_PROFILE "CODESYS V3.5 SP17 Patch 3"
    Project Information — из раздела `library`, проверка «все объекты пула» — 0 ошибок. Ошибки
    выводятся с файлом и строкой в `src/`; при ошибках файлы не устанавливаются (код 1), а
    `build\<имя>.library` можно открыть в IDE и посмотреть. Ссылки самой библиотеки
-   (`library.libraries`: `Standard`, другая библиотека портфолио) `cds.py` добавляет и в проекты
-   приложения и тестов этого репозитория — в `modes` их повторять не нужно.
+   (`library.libraries`: `standard` — по умолчанию, другая библиотека портфолио) `cds.py` добавляет
+   и в проекты приложения и тестов этого репозитория — в `modes` их повторять не нужно.
 4. Приложить к релизу GitHub: `.compiled-library` — для использования, `.library` — для отладки и
    чтения исходников; `build\<имя>.project` — рабочий проект (для переноса на другую машину удобнее
    «Файл → Архив проекта → Сохранить/Отправить архив», `.projectarchive`).

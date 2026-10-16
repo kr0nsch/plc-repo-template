@@ -71,6 +71,7 @@ CODESYS Control Win V3, запущенном пользовательским п
 |---|---|
 | `python tools/codesys/cds.py import` | `src/` → `build/<имя>.project` |
 | `python tools/codesys/cds.py build` | импорт и сборка; ошибки — с файлом и строкой в `src/` |
+| `python tools/codesys/cds.py check --tests` | компиляция всех объектов `src/` и `tests/`, в том числе не вызываемых из задач |
 | `python tools/codesys/cds.py test` | `src/` + `tests/` → сборка → прогон в рантайме → `build/test-results.json`, `build/junit.xml` |
 | `python tools/codesys/cds.py roundtrip` | импорт → экспорт → побайтное сравнение с `src/` и `tests/` |
 | `python tools/codesys/cds.py export` | после правок в IDE: проект → `src/` (до коммита) |
@@ -81,8 +82,9 @@ CODESYS Control Win V3, запущенном пользовательским п
 
 Путь к CODESYS и профиль — переменные `CODESYS_EXE`, `CODESYS_PROFILE` (без них — стандартный путь
 установки 3.5.17.30); настройки проекта, устройства, задач и библиотек — `tools/codesys/config.json`.
-Проверено в CODESYS 3.5.17.30 / CODESYS Control Win V3 (пользовательский процесс): сборка без ошибок
-и предупреждений, тесты coUnit зелёные, цикл «импорт → экспорт» без диффа — см.
+Библиотека Standard (TON, R_TRIG, CTU, CONCAT) подключена по умолчанию плейсхолдером `#Standard`.
+Проверено в CODESYS 3.5.17.30 / CODESYS Control Win V3 (пользовательский процесс): сборка и проверка
+всех объектов без ошибок и предупреждений, тесты coUnit зелёные, цикл «импорт → экспорт» без диффа — см.
 [docs/TEST_REPORT.md](docs/TEST_REPORT.md). Установка и первый запуск —
 [docs/MANUAL_STEPS.md](docs/MANUAL_STEPS.md), все опции и переменные —
 [tools/README.md](tools/README.md#codesyscdspy--codesys-из-консоли). Правило: правили в IDE —
@@ -95,7 +97,9 @@ CODESYS Control Win V3, запущенном пользовательским п
    `git grep -n -e "<ИМЯ ФАМИЛИЯ>" -e "<GITHUB_USER>"`.
 3. Удалить пример (`FB_Example`, `ST_Example*`, константы `EXAMPLE_*`) или переименовать под задачу.
 4. Обновить `CHANGELOG.md`, `docs/ASSUMPTIONS.md` и `tools/codesys/config.json` (для библиотеки —
-   раздел `library`: название, компания, версия, пространство имён).
+   раздел `library`: название, компания, версия, пространство имён). Тесты `tools/tests/` берут
+   настройки из своего эталона и от `config.json` проекта не зависят: задачи, библиотеки и раздел
+   `library` меняются без исключения тестов шаблона.
 
 ## Зеркало на GitVerse или GitFlic
 
@@ -114,6 +118,7 @@ git push mirror --tags
 | iec_checker | CI: v0.4 (как локально) — обязательно; образ `nightly` — необязательно | статанализ; находки — в [docs/STATIC_ANALYSIS.md](docs/STATIC_ANALYSIS.md) |
 | RuSTy `plc --check` | CI, необязательно | синтаксис и типы собранного ST |
 | сборка CODESYS 3.5.17.30 | Windows с CODESYS: `cds.py build` | ошибки и предупреждения компилятора — `build/build.log` |
+| полная проверка компиляции | Windows с CODESYS: `cds.py check --tests` | все объекты `src/` и `tests/`, даже без вызовов из задач (`build` их не компилирует) — `build/check.log` |
 | CfUnit (coUnit 1.2.0.0) | Windows с CODESYS: `cds.py test` (Control Win V3) | юнит-тесты ST; итоги — в [docs/TEST_REPORT.md](docs/TEST_REPORT.md) |
 | roundtrip | Windows с CODESYS: `cds.py roundtrip` | «импорт → экспорт» без диффа, повторный импорт без изменений |
 
