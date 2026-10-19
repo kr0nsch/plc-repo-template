@@ -11,7 +11,7 @@
   <a href="LICENSE"><img alt="Лицензия MIT" src="https://img.shields.io/badge/license-MIT-56677D?style=flat-square&labelColor=1B2736"></a>
   <img alt="CODESYS 3.5.17" src="https://img.shields.io/badge/CODESYS-3.5.17-C2410C?style=flat-square&labelColor=1B2736">
   <img alt="IEC 61131-3" src="https://img.shields.io/badge/IEC%2061131--3-56677D?style=flat-square">
-  <a href="#тесты-и-проверки"><img alt="Тесты: coUnit 18 из 18 в CODESYS Control Win, pytest 528" src="https://img.shields.io/badge/tests-coUnit%2018%2F18%20%C2%B7%20pytest%20528-3A4B60?style=flat-square&labelColor=1B2736"></a>
+  <a href="#тесты-и-проверки"><img alt="Тесты: coUnit 18 из 18 в CODESYS Control Win, pytest 534" src="https://img.shields.io/badge/tests-coUnit%2018%2F18%20%C2%B7%20pytest%20534-3A4B60?style=flat-square&labelColor=1B2736"></a>
   <img alt="Язык: Structured Text" src="https://img.shields.io/badge/Structured%20Text-3A4B60?style=flat-square">
   <img alt="Язык: Python" src="https://img.shields.io/badge/Python-3A4B60?style=flat-square&logo=python&logoColor=white">
 </p>
@@ -163,7 +163,7 @@ git push mirror --tags
 ## Тесты и проверки
 
 Статус CI — бейдж в шапке (workflow `.github/workflows/ci.yml`). Последний локальный прогон
-(19.10.2026): 528 тестов pytest, 18 из 18 тестов coUnit в CODESYS Control Win V3, roundtrip без диффа —
+(19.10.2026): 534 тестов pytest, 18 из 18 тестов coUnit в CODESYS Control Win V3, roundtrip без диффа —
 [docs/TEST_REPORT.md](docs/TEST_REPORT.md).
 
 | Проверка | Где | Что |
