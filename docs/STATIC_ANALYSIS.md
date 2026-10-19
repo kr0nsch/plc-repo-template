@@ -27,8 +27,8 @@
 | 2026-10-16 | `run_iec_checker.py` (iec_checker 0.4, Windows, локально) | 8 объектов `src/` | ошибок разбора нет; необоснованных 0; обоснованных 32: CP3 — 24, L17 — 4, CP9 — 2, UnusedVariable — 2; артефактов сборки 10 (CP3) |
 | 2026-10-16 | `run_iec_checker.py --tests` (iec_checker 0.4, Windows, локально) | 11 объектов `src/` и `tests/` | ошибок разбора нет; необоснованных 0; обоснованных 100: CP3 — 49, UnusedVariable — 30, CP9 — 17, L17 — 4; артефактов сборки 10 (CP3) |
 | 2026-10-16 | `run_rusty.py` (RuSTy 1.0.6, `plc --check`, Windows, локально) | 11 файлов `build/assembled/rusty/` (`src/` и `tests/` с прокладками coUnit и Standard) | 0 ошибок, 0 предупреждений; исключений в `rusty_exclude.txt` нет |
-| — | iec_checker 0.4 (CI, Linux) | 11 объектов `src/` и `tests/` | _перенести из отчёта CI_ |
-| — | iec_checker `nightly` (CI, необязательно) | то же | _перенести из отчёта CI_ |
+| 2026-10-19 | iec_checker 0.4 (CI, Linux) | 11 объектов `src/` и `tests/` | ошибок разбора нет; необоснованных 0; обоснованных 100; артефактов сборки 10 ([прогон](https://github.com/kr0nsch/plc-repo-template/actions/runs/39248614336)) |
+| 2026-10-19 | iec_checker `nightly` (CI, необязательно) | то же | необоснованных 0; обоснованных 88; два обоснования UnusedVariable nightly не понадобились ([прогон](https://github.com/kr0nsch/plc-repo-template/actions/runs/39248614336)) |
 
 ## Находки
 
