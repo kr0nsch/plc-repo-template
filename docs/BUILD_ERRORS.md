@@ -34,7 +34,7 @@
 
 - Действие: `python tools/codesys/cds.py import --tests`, затем `build/plc-repo-template-tests.project`
   открыт в IDE и собран (снимок `docs/media/shot-codesys-ide.png` для README)
-- Коммит: 007d648
+- Коммит: defb1d3 (исходники версии 1.0.0)
 - Статус: открыто; на сборку и тесты не влияет — компиляция 0 ошибок и 0 предупреждений, `cds.py test` —
   18 из 18
 
