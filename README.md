@@ -6,68 +6,347 @@
   </picture>
 </p>
 
+<p align="center"><b>Код ПЛК на CODESYS V3.5 в git как текст: ревью в pull request, сборка и тесты из консоли, CI без лицензии</b></p>
+
 <p align="center">
   <a href="https://github.com/kr0nsch/plc-repo-template/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/kr0nsch/plc-repo-template/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/kr0nsch/plc-repo-template/releases/latest"><img alt="Последний релиз" src="https://img.shields.io/github/v/release/kr0nsch/plc-repo-template?style=flat-square&labelColor=1B2736&color=3A4B60&label=release"></a>
   <a href="LICENSE"><img alt="Лицензия MIT" src="https://img.shields.io/badge/license-MIT-56677D?style=flat-square&labelColor=1B2736"></a>
-  <img alt="CODESYS 3.5.17" src="https://img.shields.io/badge/CODESYS-3.5.17-C2410C?style=flat-square&labelColor=1B2736">
-  <img alt="IEC 61131-3" src="https://img.shields.io/badge/IEC%2061131--3-56677D?style=flat-square">
-  <a href="#тесты-и-проверки"><img alt="Тесты: coUnit 18 из 18 в CODESYS Control Win, pytest 534" src="https://img.shields.io/badge/tests-coUnit%2018%2F18%20%C2%B7%20pytest%20534-3A4B60?style=flat-square&labelColor=1B2736"></a>
-  <img alt="Язык: Structured Text" src="https://img.shields.io/badge/Structured%20Text-3A4B60?style=flat-square">
-  <img alt="Язык: Python" src="https://img.shields.io/badge/Python-3A4B60?style=flat-square&logo=python&logoColor=white">
+  <img alt="CODESYS 3.5.17.30" src="https://img.shields.io/badge/CODESYS-3.5.17.30-C2410C?style=flat-square&labelColor=1B2736">
+  <a href="#тесты-и-качество"><img alt="Тесты: 18 из 18 юнит-тестов ST (coUnit) в CODESYS Control Win, 534 теста pytest" src="https://img.shields.io/badge/tests-coUnit%2018%2F18%20%C2%B7%20pytest%20534-3A4B60?style=flat-square&labelColor=1B2736"></a>
 </p>
 
 <p align="center">
-  <a href="#демонстрация">Демо</a> ·
-  <a href="#архитектура">Архитектура</a> ·
+  <a href="#что-это-и-зачем">Что это</a> ·
   <a href="#быстрый-старт">Быстрый старт</a> ·
-  <a href="docs/">Документация</a> ·
+  <a href="#как-использовать-в-своём-проекте">Как использовать</a> ·
+  <a href="#как-устроено">Как устроено</a> ·
+  <a href="#документация">Документация</a> ·
   <a href="#summary-en">Summary (EN)</a>
 </p>
 
-**ПЛК-код в git без бинарного проекта.** Шаблон репозитория для ПЛК-проектов на CODESYS V3.5
-(3.5.17.30, целевой ПЛК — ОВЕН ПЛК210).
-Решает главную проблему ПЛК-кода в git: проект CODESYS (`.project`) бинарный, его нельзя ревьюить
-и сливать. Здесь источник истины — текстовые файлы ST, проект собирается из них скриптом, а
-проверки (линтер, статанализ, проверка компиляции) идут в CI без CODESYS.
+**Шаблон репозитория для ПЛК-проектов на CODESYS V3.5, где код хранится как текст.** Проект CODESYS
+(`.project`) — бинарный файл: в git его нельзя ревьюить, сравнивать и сливать. Здесь источник истины —
+файлы Structured Text в `src/` и `tests/`, по файлу на объект CODESYS; проект собирается из них одной
+командой, а правки, сделанные в IDE, выгружаются обратно в текст. Для инженеров и групп АСУ ТП, которым
+нужны ревью ПЛК-кода в pull request, CI и воспроизводимая сборка.
 
-## Демонстрация
+## Что это и зачем
 
-Всё ниже снято на машине разработки 19.10.2026: Windows 11, CODESYS 3.5.17.30 и CODESYS Control Win V3
-в пользовательском процессе. Записи терминала — с коммита `007d648`, снимок IDE — с исходников версии 1.0.0
-(от `007d648` они отличаются только строкой «Автор» в заголовках POU). Вывод команд и окно IDE — как есть,
-макетов нет.
+Шаблон GitHub (кнопка **Use this template**): структура репозитория, инструменты на Python и рабочий
+пример с тестами. Вместо `.project` в git лежат тексты ST. Команда `tools/codesys/cds.py` создаёт из
+них проект CODESYS, собирает его, прогоняет юнит-тесты в CODESYS Control Win V3 и выгружает правки из
+IDE обратно в `src/`. Проверки, которым CODESYS не нужен (линтер, статанализ, проверка компиляции
+открытым компилятором), идут в CI на Linux.
+
+**Что даёт**
+
+- **Ревью по объектам.** Один объект CODESYS — один файл: `FB_Example.decl.st`, `Reset.method.impl.st`,
+  `Count.get.impl.st`. Дифф в pull request показывает изменённый метод, а не «изменился бинарный файл».
+- **Сборка из консоли.** `cds.py build` создаёт проект из `src/` и собирает его; ошибки компилятора —
+  с файлом и строкой в `src/`, например
+  `src/POUs/F_Clamp/F_Clamp.impl.st:16: Error C0046 Идентификатор 'rValueX' не задан`.
+- **Правки в IDE не теряются.** `cds.py export` выгружает проект обратно в тексты; `cds.py roundtrip`
+  проверяет, что цикл «импорт → экспорт» возвращает те же файлы побайтно. `import` не перезапишет
+  проект с невыгруженными правками из IDE, а `export` — тексты, изменённые после импорта.
+- **Юнит-тесты ST из консоли.** `cds.py test` загружает тестовое приложение в CODESYS Control Win V3 и
+  прогоняет тесты на coUnit (CfUnit 1.2.0.0 — открытый фреймворк юнит-тестов для CODESYS, MIT): итог в
+  консоли и `build/junit.xml` для CI. В шаблоне 18 тестов, все пройдены.
+- **CI без лицензии CODESYS.** ruff, mypy, pytest, линтер ST, статанализ iec_checker и проверка
+  компиляции RuSTy — на GitHub-hosted Linux, на каждый push и pull request.
+- **Без прав администратора.** Рантайм для тестов — пользовательский процесс, служба Windows не нужна.
+- **Правила кода проверяются автоматически.** Линтер `st_lint` проверяет правила
+  [CONTRIBUTING.md](CONTRIBUTING.md): заголовки POU, префиксы имён, «магические числа», длину строк.
+
+**Для кого**
+
+- инженеры и группы АСУ ТП на CODESYS V3.5, которым нужны ревью ПЛК-кода через pull request, CI и
+  воспроизводимая сборка;
+- интеграторы и машиностроители, которые ведут много однотипных проектов и хотят одинаковую структуру
+  репозиториев;
+- технические руководители, которые оценивают текстовый процесс разработки ПЛК-кода.
+
+**Платформа.** Проверено на CODESYS V3.5 SP17 Patch 3 (3.5.17.30, 32-битная сборка ОВЕН) и CODESYS
+Control Win V3. Целевой ПЛК — ОВЕН ПЛК210, на железе шаблон не проверялся; устройство проекта задаётся
+в `tools/codesys/config.json` → `device` (варианты — в `_alternatives`). Сборка и тесты в CODESYS —
+только на Windows; проверки без CODESYS — на Windows и Linux с Python 3.11+.
+
+## Как это выглядит
+
+Реальные прогоны и окно IDE: Windows 11, CODESYS 3.5.17.30, CODESYS Control Win V3. Макетов нет.
 
 <p align="center">
   <img alt="Терминал PowerShell: cds.py import --tests, build, test и roundtrip — сборка без ошибок и предупреждений, 18 из 18 тестов coUnit пройдены, экспорт совпадает с src/ и tests/ побайтно (60 файлов)" src="docs/media/demo-codesys-cycle.gif" width="900">
 </p>
-<p align="center"><sub>Полный цикл в CODESYS из консоли: импорт → сборка → 18 тестов coUnit в Control Win → roundtrip без диффа. Реальный прогон, снято term2gif.py; ожидания укорочены (весь цикл — около минуты)</sub></p>
+<p align="center"><sub>Полный цикл в CODESYS из консоли: импорт → сборка → 18 тестов coUnit в Control Win → roundtrip без диффа. Ожидания укорочены, весь цикл — около минуты</sub></p>
 
 <p align="center">
   <img alt="Окно CODESYS 3.5.17.30 с проектом, собранным из src/ и tests/: дерево устройств с FB_Example, его методами и свойством Count, папкой Tests и задачей TestTask, справа редактор FB_Example на ST" src="docs/media/shot-codesys-ide.png" width="900">
 </p>
-<p align="center"><sub>Тот же проект в IDE: <code>build/plc-repo-template-tests.project</code> после <code>cds.py import --tests</code>. Снимок окна shot.py, нижняя строка сообщений обрезана — о ней <a href="docs/BUILD_ERRORS.md">BUILD_ERRORS.md</a></sub></p>
+<p align="center"><sub>Тот же проект в IDE: <code>build/plc-repo-template-tests.project</code> после <code>cds.py import --tests</code> — объекты и папки из файлов <code>src/</code> и <code>tests/</code>. Нижняя строка сообщений обрезана — о ней <a href="docs/BUILD_ERRORS.md">BUILD_ERRORS.md</a></sub></p>
 
 <p align="center">
   <img alt="Терминал PowerShell: проверки без CODESYS, как в CI — ruff и mypy без замечаний, 528 тестов pytest пройдены, сборка ST, st_lint без замечаний, iec_checker без необоснованных находок, RuSTy без ошибок" src="docs/media/demo-checks.gif" width="900">
 </p>
-<p align="center"><sub>Проверки без CODESYS и без лицензии — те же шаги, что в CI: ruff, mypy, pytest, assemble, st_lint, iec_checker 0.4, RuSTy 1.0.6. Реальный прогон, снято term2gif.py; вывод pytest показан ускоренно</sub></p>
+<p align="center"><sub>Проверки без CODESYS и без лицензии — те же шаги, что в CI: ruff, mypy, pytest, assemble, st_lint, iec_checker 0.4, RuSTy 1.0.6. Вывод pytest ускорен; на момент записи тестов было 528, сейчас 534</sub></p>
 
-## Архитектура
+<details>
+<summary>Когда и с чего снято</summary>
+
+Все записи и снимок сделаны 19.10.2026 на машине разработки; CODESYS Control Win V3 работал в
+пользовательском процессе. Записи терминала — с коммита `007d648`, снимок IDE — с исходников версии
+1.0.0 (от `007d648` они отличаются только строкой «Автор» в заголовках POU). Вывод команд и окно IDE —
+как есть.
+
+</details>
+
+## Быстрый старт
+
+Два уровня: проверки без CODESYS работают на любой машине с Python (так же, как CI); сборка и тесты в
+CODESYS — на Windows с установленным CODESYS. Железо ПЛК не нужно ни там, ни там.
+
+### Без CODESYS: Windows или Linux
+
+Нужно: Python 3.11+ (в CI — 3.12) и git. Для шагов 6 и 7 — бинарники iec_checker v0.4 и RuSTy v1.0.6
+из их релизов (установка не нужна).
+
+1. Получить код:
+
+   ```bash
+   git clone https://github.com/kr0nsch/plc-repo-template.git
+   cd plc-repo-template
+   ```
+
+2. Окружение и зависимости для разработки (ruff, mypy, pytest, hypothesis):
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate     # Git Bash: source .venv/Scripts/activate, cmd: .venv\Scripts\activate.bat, PowerShell: .venv\Scripts\Activate.ps1
+   python -m pip install -r requirements-dev.txt
+   ```
+
+3. Тесты инструментов:
+
+   ```bash
+   python -m pytest
+   ```
+
+   Увидите: `534 passed`. Если iec_checker и RuSTy ещё не скачаны — `524 passed, 10 skipped`:
+   интеграционные тесты с настоящими анализаторами пропускаются.
+
+4. Линтер ST по правилам [CONTRIBUTING.md](CONTRIBUTING.md):
+
+   ```bash
+   python tools/check/st_lint.py --strict
+   ```
+
+   Увидите: `st_lint: файлов 60, ошибок 0, предупреждений 0`.
+
+5. Склейка раскладки в стандартный ST для анализаторов:
+
+   ```bash
+   python tools/assemble.py --tests
+   ```
+
+   Увидите: `assemble: 11 объектов (iec), записано в …/build/assembled`.
+
+6. Статанализ. Скачайте из [релиза iec_checker v0.4](https://github.com/iec-checker/iec-checker/releases/tag/v0.4)
+   файл `iec_checker_Windows_x86_64.exe` или `iec_checker_Linux_x86_64` (в Linux — `chmod +x`) и положите
+   в `~/.local/plc-tools/iec-checker/` — там его найдёт `run_iec_checker.py`; другой путь — `--binary <путь>`
+   или переменная `IEC_CHECKER`.
+
+   ```bash
+   python tools/check/run_iec_checker.py --tests
+   ```
+
+   Увидите: `run_iec_checker (v0.4): файлов 11; необоснованных 0, обоснованных 100, артефактов сборки 10; отчёт …/build/iec_checker.md`.
+   Каждая обоснованная находка разобрана в [docs/STATIC_ANALYSIS.md](docs/STATIC_ANALYSIS.md).
+
+7. Необязательно — проверка компиляции RuSTy. Из [релиза RuSTy v1.0.6](https://github.com/PLC-lang/rusty/releases/tag/v1.0.6)
+   скачайте `plc.exe` (в Linux — `plc-linux-x86_64`, переименовать в `plc` и `chmod +x`) и `stdlib-1.0.6.tar.gz` в
+   `~/.local/plc-tools/rusty/` и распакуйте архив там же (`tar -xzf stdlib-1.0.6.tar.gz` — получится
+   `stdlib/include/` рядом с `plc`). Другие пути — `--plc <путь>` и `--stdlib <каталог include>`.
+
+   ```bash
+   python tools/check/run_rusty.py
+   ```
+
+   Увидите: `run_rusty: проверено файлов 11, исключено 0, без ошибок; журнал …/build/rusty.log`.
+
+Отчёты — в `build/`: `iec_checker.md`, `iec_checker.json`, `rusty.log`. Опции всех инструментов — в
+[tools/README.md](tools/README.md).
+
+### С CODESYS: Windows
+
+Нужно:
+
+- CODESYS V3.5 SP17 Patch 3 (3.5.17.30) с компонентом CODESYS Control Win V3 —
+  [MANUAL_STEPS.md, раздел 1](docs/MANUAL_STEPS.md#1-установка-codesys-351730). Стандартный путь
+  установки `cds.py` находит сам, другой — переменные `CODESYS_EXE` и `CODESYS_PROFILE`
+  ([раздел 3](docs/MANUAL_STEPS.md#3-переменные-окружения));
+- библиотека coUnit 1.2.0.0 с CODESYS Forge в репозитории библиотек CODESYS или путь к ней в
+  `COUNIT_LIBRARY` — [раздел 2](docs/MANUAL_STEPS.md#2-counit-cfunit-1200);
+- Python 3.11+ без сторонних пакетов. Права администратора не нужны.
+
+Каждая команда запускает CODESYS без окна и длится 10–20 секунд; журналы — в `build/`.
+
+1. Собрать проект из `src/`:
+
+   ```bat
+   python tools\codesys\cds.py build
+   ```
+
+   Увидите: `[cds] build: OK (ошибок 0, предупреждений 0, …)`. Проект — `build\plc-repo-template.project`.
+
+2. Проверить компиляцию всех объектов, в том числе тестов и не вызываемых из задач:
+
+   ```bat
+   python tools\codesys\cds.py check --tests
+   ```
+
+   Увидите: `[cds] check: все объекты src/ и tests/ скомпилированы без ошибок (11 объектов)`.
+
+3. Прогнать юнит-тесты в CODESYS Control Win V3 (рантайм `cds.py` запускает сам, при первом запуске
+   готовит его каталог и файл учётных данных тестового пользователя —
+   [раздел 4](docs/MANUAL_STEPS.md#4-рантайм-codesys-control-win-v3-без-прав-администратора)):
+
+   ```bat
+   python tools\codesys\cds.py test
+   ```
+
+   Увидите: `[cds] test: OK (наборов 2, тестов 18, пройдено 18, упало 0, пропущено 0, …)`; результаты —
+   `build\test-results.json` и `build\junit.xml`.
+
+4. Проверить цикл «импорт → экспорт»:
+
+   ```bat
+   python tools\codesys\cds.py roundtrip
+   ```
+
+   Увидите: `[cds] roundtrip: экспорт совпадает с src/ и tests/ побайтно (60 файлов)`.
+
+Посмотреть проект в IDE без скриптов — готовый `plc-repo-template.project` в
+[релизе v1.0.0](https://github.com/kr0nsch/plc-repo-template/releases/tag/v1.0.0).
+
+## Как использовать в своём проекте
+
+Кратко; подробно, с чек-листами и полным примером, — [docs/USAGE.md](docs/USAGE.md).
+
+1. **Создать репозиторий.** **Use this template → Create a new repository**, клонировать. Имя каталога —
+   имя проекта CODESYS: `build\<имя>.project`, `build\<имя>-tests.project`.
+2. **Сделать своим.** Заменить автора и имя шаблона — их места покажет
+   `git grep -n -e kr0nsch -e plc-repo-template -- . ":!tools/tests"` ([чек-лист](docs/USAGE.md#2-переименовать-под-свой-проект)).
+   Удалить пример `FB_Example` по [чек-листу](docs/USAGE.md#3-удалить-пример): кроме файлов `src/` и
+   `tests/` в нём правка `PRG_Main`, `PRG_Tests` и файла обоснований iec_checker — без неё CI упадёт
+   на `pytest`.
+3. **Работать каждый день** одним из двух способов:
+   - *правка текста* — изменить `src/**/*.st` в любом редакторе → `python tools/check/st_lint.py --strict`
+     → с CODESYS `cds.py build`, `check --tests`, `test` → коммит;
+   - *правка в IDE* — цикл ниже. Правило одно: правили в IDE — `cds.py export` до коммита.
+
+   ```bat
+   python tools\codesys\cds.py import
+   rem открыть build\<имя>.project в IDE, править, сохранить проект и закрыть IDE
+   python tools\codesys\cds.py export
+   git diff --stat
+   python tools\codesys\cds.py test
+   git add src tests
+   git commit
+   ```
+
+   Пока проект открыт в IDE, `import`, `build`, `test` и `export` отказываются (код выхода 3).
+   `import` не перезапишет проект, сохранённый в IDE после последнего `import`/`export` (сначала
+   `export`, или `--force`, если правки не нужны); `export` не перезапишет `src/`, изменённый после
+   последнего `import`/`export` (сравнить — `export --to build\cmp`, перезаписать — `--force`).
+   С тестами — `import --tests` и `export --tests`.
+4. **Добавить свой код.** Объект — папка с файлами объявления и тела, тест — метод набора coUnit,
+   набор — экземпляр в `PRG_Tests`. Пример из шаблона — функция `F_Clamp`:
+
+   ```text
+   src/POUs/F_Clamp/
+     F_Clamp.decl.st                     заголовок и объявление
+     F_Clamp.impl.st                     тело
+   tests/POUs/FB_F_Clamp_Test/
+     FB_F_Clamp_Test.decl.st             набор: FUNCTION_BLOCK ... EXTENDS coUnit.FB_TestSuite
+     FB_F_Clamp_Test.impl.st             вызовы методов-тестов
+     BelowLowReturnsLow.method.decl.st   тест: объявление метода
+     BelowLowReturnsLow.method.impl.st   тест: тело
+   tests/POUs/PRG_Tests/                 регистрация набора
+   ```
+
+   Заголовок POU обязателен — без него `st_lint` выдаёт ошибку STL001 (`F_Clamp.decl.st`, сокращено):
+
+   ```st
+   // Назначение: ограничение значения отрезком между двумя границами.
+   // Автор:      kr0nsch
+   // Версия:     0.1.0
+   // Документ:   docs/ASSUMPTIONS.md, раздел «Семантика F_Clamp»
+   FUNCTION F_Clamp : REAL
+   VAR_INPUT
+       rValue : REAL;      // ограничиваемое значение
+       rLow : REAL;        // нижняя граница
+       rHigh : REAL;       // верхняя граница
+   END_VAR
+   ```
+
+   Тест — метод набора (`BelowLowReturnsLow.method.impl.st`):
+
+   ```st
+   coUnit.TEST('BelowLowReturnsLow');
+
+   rResult := F_Clamp(rValue := R_BELOW, rLow := R_LOW, rHigh := R_HIGH);
+   AssertEquals_REAL(Expected := R_LOW,
+                     Actual := rResult,
+                     Delta := R_DELTA,
+                     Message := 'Value below range must be clamped to rLow');
+
+   coUnit.TEST_FINISHED();
+   ```
+
+   Набор попадает в прогон, когда в `PRG_Tests` объявлен его экземпляр и его флаг входит в
+   `xAllFinished`, по которому `cds.py test` ждёт окончания (в шаблоне наборов два):
+
+   ```st
+   // PRG_Tests.decl.st, секция VAR
+   fbF_ClampTest : FB_F_Clamp_Test;    // тесты F_Clamp
+   // PRG_Tests.impl.st, после coUnit.RUN();
+   xAllFinished := fbF_ClampTest.AreAllTestsFinished() AND fbExampleTest.AreAllTestsFinished();
+   ```
+
+5. **Задачи, устройство и библиотеки** — в `tools/codesys/config.json`, а не в IDE: новая программа
+   получает задачу в `modes.normal.tasks` (сейчас `MainTask`, 20 мс → `PRG_Main`), их создаёт `import`
+   ([USAGE.md, раздел 6](docs/USAGE.md#6-задачи-устройство-и-библиотеки-configjson)).
+6. **Push.** CI проверяет всё, что не требует CODESYS ([«Тесты и качество»](#тесты-и-качество)).
+   Сборку и тесты в CODESYS запускают перед слиянием на Windows или на своём Windows-раннере
+   ([plc-ci-toolkit](https://github.com/kr0nsch/plc-ci-toolkit)).
+7. **Релиз.** `.project` и `.library` в git не хранятся — их прикладывают к релизу GitHub
+   ([MANUAL_STEPS.md, раздел 7](docs/MANUAL_STEPS.md#7-релиз-и-библиотеки-project-library-зависимости)).
+
+## Как устроено
 
 ```mermaid
 flowchart LR
-    src["src/, tests/<br/>тексты ST"] --> lint["st_lint"]
-    src --> asm["assemble.py"] --> built["build/assembled/"]
-    built --> iec["iec_checker"]
-    built --> rusty["RuSTy --check"]
-    src --> imp["cds.py import"] --> proj["проект CODESYS"]
-    proj --> bld["cds.py build"] --> tst["cds.py test<br/>Control Win + coUnit"] --> rep["TEST_REPORT.md"]
-    proj -- "правки в IDE" --> exp["cds.py export"] --> src
+    src["src/ и tests/<br/>тексты ST, в git"]
+    subgraph ci["Без CODESYS: CI на Linux и локально"]
+        lint["st_lint<br/>правила кода"]
+        asm["assemble.py<br/>стандартный ST"]
+        iec["iec_checker<br/>статанализ"]
+        rusty["RuSTy plc --check<br/>проверка компиляции"]
+    end
+    subgraph cds["С CODESYS: Windows"]
+        imp["cds.py import"]
+        proj["проект CODESYS<br/>build/, не в git"]
+        bld["cds.py build, check"]
+        tst["cds.py test<br/>Control Win V3 + coUnit"]
+        exp["cds.py export"]
+    end
+    src --> lint
+    src --> asm
+    asm --> iec
+    asm --> rusty
+    src --> imp --> proj --> bld --> tst --> rep["build/junit.xml<br/>docs/TEST_REPORT.md"]
+    proj -- "правки в IDE" --> exp -- "до коммита" --> src
 ```
-
-Подробно — [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## Почему такая раскладка
 
 <p align="center">
   <picture>
@@ -78,136 +357,128 @@ flowchart LR
 </p>
 <p align="center"><sub>Схема (не снимок IDE): какой файл какой объект проекта даёт <code>cds.py import</code>; реальное дерево — на снимке выше</sub></p>
 
-- **Один объект CODESYS — один файл или папка** (`src/POUs/FB_Example/FB_Example.decl.st`,
-  `Reset.method.impl.st`, `Count.get.impl.st`...). Дифф в pull request показывает, какой метод
-  изменился, а не «изменился бинарный файл».
-- **Объявление и тело — разные файлы**, как в редакторе CODESYS: импорт и экспорт однозначны,
-  и цикл «импорт → экспорт» без правок не должен давать диффа (критерий проверки скриптов).
-- **Склейка в стандартный ST** (`tools/assemble.py`) позволяет проверять код открытыми
-  инструментами — iec_checker и RuSTy — без лицензии и без Windows.
-- Контракт раскладки — [docs/LAYOUT.md](docs/LAYOUT.md), правила кода — [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Быстрый старт
-
-Без железа и без CODESYS: нужен только Python 3.11+ (в CI — 3.12).
-
-```bash
-python -m venv .venv
-source .venv/bin/activate              # Windows: .venv\Scripts\activate
-python -m pip install -r requirements-dev.txt
-
-python -m pytest                       # тесты инструментов
-python tools/check/st_lint.py --strict # правила CONTRIBUTING.md: заголовки, имена, «магические числа»
-python tools/assemble.py --tests       # стандартный ST в build/assembled/
-
-# статанализ: бинарник iec_checker v0.4 из релизов (--binary <путь> или переменная IEC_CHECKER)
-# или Docker-образ (--docker jubnzv1/iec-checker:nightly)
-python tools/check/run_iec_checker.py --binary <путь к iec_checker> --tests
-# необязательно: проверка компиляции RuSTy (бинарник plc и stdlib из релиза PLC-lang/rusty v1.0.6)
-python tools/check/run_rusty.py --plc <путь к plc> --stdlib <stdlib/include>
-```
-
-Отчёты — в `build/` (`iec_checker.md`, `rusty.log`). Опции инструментов — в
-[tools/README.md](tools/README.md).
-
-## CODESYS: импорт, сборка, тесты, экспорт
-
-Нужны Windows, CODESYS 3.5.17.30 и Python 3.11+. Всё делает одна команда `tools/codesys/cds.py`:
-она запускает CODESYS без окна (`--noUI`) со скриптами CODESYS Scripting, а тесты coUnit — в
-CODESYS Control Win V3, запущенном пользовательским процессом (без прав администратора).
-
-| Команда (из корня репозитория; cmd, PowerShell или Git Bash) | Что делает |
+| Каталог | Назначение |
 |---|---|
-| `python tools/codesys/cds.py import` | `src/` → `build/<имя>.project` |
-| `python tools/codesys/cds.py build` | импорт и сборка; ошибки — с файлом и строкой в `src/` |
-| `python tools/codesys/cds.py check --tests` | компиляция всех объектов `src/` и `tests/`, в том числе не вызываемых из задач |
-| `python tools/codesys/cds.py test` | `src/` + `tests/` → сборка → прогон в рантайме → `build/test-results.json`, `build/junit.xml` |
-| `python tools/codesys/cds.py roundtrip` | импорт → экспорт → побайтное сравнение с `src/` и `tests/` |
-| `python tools/codesys/cds.py export` | после правок в IDE: проект → `src/` (до коммита) |
-| `python tools/codesys/cds.py report` | итоги прогона → `docs/TEST_REPORT.md` |
-| `python tools/codesys/cds.py library --install` | `src/` → библиотека `build/<имя>.library` и установка в репозиторий библиотек |
-| `python tools/codesys/cds.py deps` | библиотеки-зависимости: проверка, установка, сборка в соседних репозиториях |
-| `python tools/codesys/cds.py runtime status` | рантайм; также `start`, `stop`, `restart`, `init` |
+| `src/` | исходники приложения: DUT, GVL, интерфейсы, POU с методами и свойствами — по файлу на объект |
+| `tests/` | наборы тестов coUnit и программа запуска `PRG_Tests` в той же раскладке; при импорте — папка проекта `Tests` |
+| `tools/` | `assemble.py` — склейка в стандартный ST; `check/` — линтер, запуск iec_checker и RuSTy; `codesys/` — `cds.py`, скрипты CODESYS Scripting, `config.json` |
+| `docs/` | руководства, отчёты проверок, журнал решений, шаблоны ТЗ и ПМИ |
+| `.github/workflows/` | CI без CODESYS |
+| `build/` | проекты CODESYS, собранный ST, журналы и отчёты; в git не хранится |
 
-Путь к CODESYS и профиль — переменные `CODESYS_EXE`, `CODESYS_PROFILE` (без них — стандартный путь
-установки 3.5.17.30); настройки проекта, устройства, задач и библиотек — `tools/codesys/config.json`.
-Библиотека Standard (TON, R_TRIG, CTU, CONCAT) подключена по умолчанию плейсхолдером `#Standard`.
-Проверено в CODESYS 3.5.17.30 / CODESYS Control Win V3 (пользовательский процесс): сборка и проверка
-всех объектов без ошибок и предупреждений, тесты coUnit зелёные, цикл «импорт → экспорт» без диффа — см.
-[docs/TEST_REPORT.md](docs/TEST_REPORT.md). Установка и первый запуск —
-[docs/MANUAL_STEPS.md](docs/MANUAL_STEPS.md), все опции и переменные —
-[tools/README.md](tools/README.md#codesyscdspy--codesys-из-консоли). Правило: правили в IDE —
-`cds.py export` в `src/` до коммита.
+Почему так:
 
-## Как создать проект из шаблона
+- **Объявление и тело — разные файлы**, как в редакторе CODESYS: импорт и экспорт однозначны, и цикл
+  «импорт → экспорт» без правок не даёт диффа.
+- **Склейка в стандартный ST** (`tools/assemble.py`) позволяет проверять код открытыми инструментами —
+  iec_checker и RuSTy — без лицензии и без Windows.
+- **Задачи, устройство и библиотеки — в `config.json`**: проект целиком воспроизводится из репозитория.
+- Контракт раскладки — [docs/LAYOUT.md](docs/LAYOUT.md), контуры проверок и пример —
+  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-1. На GitHub: **Use this template → Create a new repository**.
-2. Заменить автора `kr0nsch` и имя репозитория на свои (LICENSE, README — бейджи и подвал портфолио,
-   CONTRIBUTING.md, заголовки ST, `tools/codesys/config.json: library.author`):
-   `git grep -n -e kr0nsch -e plc-repo-template -- . ":!tools/tests"`. Эталоны и данные тестов
-   `tools/tests/` от автора проекта не зависят — их не трогать.
-3. Удалить пример (`FB_Example`, `ST_Example*`, константы `EXAMPLE_*`) или переименовать под задачу.
-4. Обновить `CHANGELOG.md`, `docs/ASSUMPTIONS.md` и `tools/codesys/config.json` (для библиотеки —
-   раздел `library`: название, компания, версия, пространство имён). Тесты `tools/tests/` берут
-   настройки из своего эталона и от `config.json` проекта не зависят: задачи, библиотеки и раздел
-   `library` меняются без исключения тестов шаблона.
+## Тесты и качество
 
-## Зеркало на GitVerse или GitFlic
-
-```bash
-git remote add mirror <url>
-git push mirror --all
-git push mirror --tags
-```
-
-## Тесты и проверки
-
-Статус CI — бейдж в шапке (workflow `.github/workflows/ci.yml`). Последний локальный прогон
-(19.10.2026): 534 тестов pytest, 18 из 18 тестов coUnit в CODESYS Control Win V3, roundtrip без диффа —
-[docs/TEST_REPORT.md](docs/TEST_REPORT.md).
-
-| Проверка | Где | Что |
+| Проверка | Где | Что проверяет |
 |---|---|---|
-| ruff, mypy, pytest | CI | код инструментов на Python |
-| `st_lint --strict` | CI | раскладка, заголовки POU, табы, длина строки, `TODO` без issue, «магические числа» |
-| iec_checker | CI: v0.4 (как локально) — обязательно; образ `nightly` — необязательно | статанализ; находки — в [docs/STATIC_ANALYSIS.md](docs/STATIC_ANALYSIS.md) |
+| ruff, ruff format, mypy, pytest | CI, обязательно | код инструментов на Python: раскладка, склейка, линтер, запуск анализаторов, `cds.py` без CODESYS |
+| `st_lint --strict` | CI, обязательно | раскладка, заголовки POU, префиксы имён, табы, длина строки, `TODO` без issue, «магические числа» |
+| iec_checker v0.4 | CI, обязательно; образ `nightly` — необязательно | статанализ; находки исправлены или обоснованы в [docs/STATIC_ANALYSIS.md](docs/STATIC_ANALYSIS.md) |
 | RuSTy `plc --check` | CI, необязательно | синтаксис и типы собранного ST |
-| сборка CODESYS 3.5.17.30 | Windows с CODESYS: `cds.py build` | ошибки и предупреждения компилятора — `build/build.log` |
-| полная проверка компиляции | Windows с CODESYS: `cds.py check --tests` | все объекты `src/` и `tests/`, даже без вызовов из задач (`build` их не компилирует) — `build/check.log` |
-| CfUnit (coUnit 1.2.0.0) | Windows с CODESYS: `cds.py test` (Control Win V3) | юнит-тесты ST; итоги — в [docs/TEST_REPORT.md](docs/TEST_REPORT.md) |
-| roundtrip | Windows с CODESYS: `cds.py roundtrip` | «импорт → экспорт» без диффа, повторный импорт без изменений |
+| `cds.py build` | Windows с CODESYS | ошибки и предупреждения компилятора CODESYS — `build/build.log` |
+| `cds.py check --tests` | Windows с CODESYS | все объекты `src/` и `tests/`, даже без вызовов из задач (`build` их не компилирует) — `build/check.log` |
+| `cds.py test` | Windows с CODESYS, Control Win V3 | юнит-тесты ST на coUnit 1.2.0.0 — `build/junit.xml`, [docs/TEST_REPORT.md](docs/TEST_REPORT.md) |
+| `cds.py roundtrip` | Windows с CODESYS | «импорт → экспорт» без диффа, повторный импорт без изменений |
+
+**Что проверено.** В CODESYS 3.5.17.30 / CODESYS Control Win V3 (19.10.2026, коммит `defb1d3`): сборка и
+проверка всех объектов — 0 ошибок и 0 предупреждений, 18 из 18 тестов coUnit, roundtrip без диффа
+(60 файлов) — [docs/TEST_REPORT.md](docs/TEST_REPORT.md). Без CODESYS на текущих исходниках: 534 теста
+pytest, `st_lint` — 60 файлов без замечаний, iec_checker — 0 необоснованных находок, RuSTy — 0 ошибок.
+На ПЛК210 код не запускался.
+
+**CI** (`.github/workflows/ci.yml`) запускается на каждый push и pull request. Обязательное задание —
+ruff, mypy, pytest, assemble, st_lint и iec_checker v0.4 (бинарник закреплён по SHA-256); iec_checker
+`nightly` и RuSTy — необязательные задания (`continue-on-error`). Итоги — в сводке запуска, отчёты — в
+артефактах (`build-reports`). Сборки и тестов в CODESYS в CI GitHub нет: их запускают на Windows
+(см. [«Быстрый старт»](#с-codesys-windows)) или на своём раннере через
+[plc-ci-toolkit](https://github.com/kr0nsch/plc-ci-toolkit). Подробно — [USAGE.md, раздел 8](docs/USAGE.md#8-ci).
 
 ## Документация
 
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — схема работы и пример в `src/`
-- [LAYOUT.md](docs/LAYOUT.md) — контракт раскладки исходников
-- [MANUAL_STEPS.md](docs/MANUAL_STEPS.md) — шаги в IDE CODESYS
-- [ASSUMPTIONS.md](docs/ASSUMPTIONS.md) — допущения и решения
-- [STATIC_ANALYSIS.md](docs/STATIC_ANALYSIS.md), [TEST_REPORT.md](docs/TEST_REPORT.md),
-  [BUILD_ERRORS.md](docs/BUILD_ERRORS.md) — отчёты
-- [TZ_template.md](docs/TZ_template.md) (ГОСТ 34.602-2020), [PMI_template.md](docs/PMI_template.md) — шаблоны ТЗ и ПМИ
+| Документ | На какой вопрос отвечает |
+|---|---|
+| [docs/USAGE.md](docs/USAGE.md) | как создать свой проект из шаблона и работать с ним каждый день |
+| [docs/MANUAL_STEPS.md](docs/MANUAL_STEPS.md) | как установить CODESYS и coUnit, запустить рантайм, работать в IDE, выпустить релиз и библиотеку |
+| [docs/LAYOUT.md](docs/LAYOUT.md) | какой файл какому объекту CODESYS соответствует |
+| [tools/README.md](tools/README.md) | все команды, опции, переменные окружения и коды выхода инструментов |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | как устроены два контура проверок и что делает пример `FB_Example` |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | правила именования и кода ST, которые проверяет линтер |
+| [docs/ASSUMPTIONS.md](docs/ASSUMPTIONS.md) | почему решено так, а не иначе (журнал допущений и решений) |
+| [docs/TEST_REPORT.md](docs/TEST_REPORT.md) | что проверено в CODESYS и без него, с каким итогом |
+| [docs/STATIC_ANALYSIS.md](docs/STATIC_ANALYSIS.md) | какие находки iec_checker обоснованы и почему; итог RuSTy |
+| [docs/BUILD_ERRORS.md](docs/BUILD_ERRORS.md) | куда вставить сообщения из окна IDE для разбора |
+| [docs/TZ_template.md](docs/TZ_template.md), [docs/PMI_template.md](docs/PMI_template.md) | шаблоны ТЗ (ГОСТ 34.602-2020) и таблицы проверок ПМИ |
+| [CHANGELOG.md](CHANGELOG.md) | что изменилось от версии к версии |
 
-## Ограничения и дальнейшие шаги
+Зеркало на GitVerse или GitFlic — [MANUAL_STEPS.md, раздел 8](docs/MANUAL_STEPS.md#8-зеркало-на-gitverse-или-gitflic).
 
-- Сборка и тесты в CODESYS выполняются только на Windows с установленным CODESYS (не в CI GitHub):
+## Ограничения и планы
+
+- Сборка и тесты в CODESYS выполняются только на Windows с установленным CODESYS, в CI GitHub их нет:
   перед релизом — `cds.py test` и `cds.py report`.
+- Проверено только на CODESYS 3.5.17.30 (32-битная сборка ОВЕН) с CODESYS Control Win V3. На ПЛК210 и
+  других версиях CODESYS не запускалось.
 - В раскладку не входят визуализации, дерево устройств, конфигураторы обмена, графические языки,
-  `ACTION`, а Persistent Variables скриптом SP17 не создаются — это ручные шаги
+  `ACTION`, а Persistent Variables скриптом в SP17 не создаются — это ручные шаги
   ([MANUAL_STEPS.md](docs/MANUAL_STEPS.md#6-работа-в-ide-и-экспорт-перед-коммитом)).
 - iec_checker и RuSTy понимают не все расширения CODESYS: для них есть упрощённые варианты сборки,
-  семантика которых может отличаться.
+  семантика которых может отличаться ([tools/README.md](tools/README.md#что-понижение-скрывает-и-добавляет)).
 - Тесты — на CfUnit 1.2.0.0 (пространство имён `coUnit`); фреймворк не развивается с 2022 года.
+
+Реализовано, но не выполнялось (в [MANUAL_STEPS.md](docs/MANUAL_STEPS.md) такие места отмечены):
+
+- первый вход на свежий рантайм без пользователей — скрипт создаёт пользователя сам
+  ([раздел 4](docs/MANUAL_STEPS.md#4-рантайм-codesys-control-win-v3-без-прав-администратора));
+- установка coUnit из файла `COUNIT_LIBRARY` — тот же код проверен на другой библиотеке
+  ([раздел 2](docs/MANUAL_STEPS.md#2-counit-cfunit-1200));
+- открытие проекта в IDE из консоли с ключом `--project`
+  ([раздел 6](docs/MANUAL_STEPS.md#6-работа-в-ide-и-экспорт-перед-коммитом));
+- выпуск библиотеки через меню IDE — проверен только путь через `cds.py`
+  ([раздел 7.1](docs/MANUAL_STEPS.md#71-выпуск-релиза)).
+
+Что осталось проверить (статус «проверить» в [ASSUMPTIONS.md](docs/ASSUMPTIONS.md)): первый вход на
+рантайм на чистой машине и параметры библиотеки coUnit на ПЛК210 с его меньшим объёмом памяти. Для
+переноса на ПЛК210 нужно устройство из таргет-файла ОВЕН, версию которого сверяют с прошивкой
+контроллера.
+
+## Связанные проекты
+
+Инструменты шаблона (`tools/`) — общая основа ПЛК-репозиториев портфолио:
+
+- [plc-process-lib](https://github.com/kr0nsch/plc-process-lib) — библиотека технологических ФБ на этом
+  шаблоне: собирается командой `cds.py library` и подключается к проектам через `config.json` →
+  `libraries` (`cds.py deps` соберёт её из соседнего каталога);
+- [plc-ci-toolkit](https://github.com/kr0nsch/plc-ci-toolkit) — переиспользуемые workflow GitHub Actions
+  для репозиториев на шаблоне: те же проверки без CODESYS и сборка с тестами coUnit в CODESYS на своём
+  Windows-раннере;
+- на тех же инструментах — [s7-to-codesys](https://github.com/kr0nsch/s7-to-codesys) и
+  [sis-interlock-demo](https://github.com/kr0nsch/sis-interlock-demo); флагманский проект КНС
+  (kns-pump-station) готовится.
+
+С чего начать: новый проект — с этого шаблона; CI со сборкой в CODESYS — добавить plc-ci-toolkit;
+готовые ФБ устройств — plc-process-lib. Все проекты — в таблице внизу страницы.
 
 ## Summary (EN)
 
-A template repository for CODESYS V3.5 (3.5.17.30) PLC projects targeting OWEN PLC210.
-The binary `.project` file is not stored in git: plain-text Structured Text files in `src/` and
-`tests/` (one CODESYS object per file or folder, see `docs/LAYOUT.md`) are the source of truth.
-A single command, `python tools/codesys/cds.py import|build|test|export|roundtrip`, drives headless
-CODESYS Scripting (IronPython) to build the project from the sources and export IDE edits back.
-`tools/assemble.py` merges the sources into standard IEC 61131-3 ST, so CI on Linux can run a
-linter, the iec_checker static analyser and the RuSTy compiler without a CODESYS licence.
-CfUnit (coUnit 1.2.0.0) unit tests run in a user-mode CODESYS Control Win V3 runtime. Docs are in Russian.
+A GitHub template repository for CODESYS V3.5 PLC projects. The binary `.project` file is not stored in git:
+plain-text Structured Text files in `src/` and `tests/` (one CODESYS object per file, see `docs/LAYOUT.md`)
+are the source of truth, so a pull request shows which method changed. One command,
+`python tools/codesys/cds.py import|build|check|test|export|roundtrip`, drives headless CODESYS Scripting to
+build the project from the sources, run coUnit (CfUnit) unit tests in a user-mode CODESYS Control Win V3
+runtime with JUnit output, and export IDE edits back to text (an import/export round trip is byte-for-byte).
+`tools/assemble.py` merges the sources into standard IEC 61131-3 ST, so CI on Linux runs a linter, the
+iec_checker static analyser and the RuSTy compiler without a CODESYS licence. Verified with CODESYS 3.5.17.30
+and Control Win V3 (18/18 tests); the target PLC, OWEN PLC210, has not been tested on hardware. How to start
+your own project: `docs/USAGE.md`. Docs are in Russian.
 
 ## Лицензия
 

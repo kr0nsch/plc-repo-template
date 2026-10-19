@@ -365,9 +365,8 @@ python tools/check/run_rusty.py [--plc PATH] [--stdlib DIR] [--no-tests] [--excl
 Прокладки:
 - `cfunit.st` — CfUnit/coUnit: `FB_TestSuite` с методами `Assert*` и `AreAllTestsFinished`, функции `TEST`,
   `TEST_ORDERED`, `TEST_FINISHED`, `TEST_FINISHED_NAMED`, `IS_TEST_FINISHED`, `RUN`, `RUN_IN_SEQUENCE`,
-  тип `T_MaxString`. Имена и сигнатуры взяты из исследования API coUnit 1.2.0.0
-  (`_research/cfunit.md`, раздел 2, по исходнику библиотеки на CODESYS Forge); компилятором CODESYS они не
-  проверялись. В коде namespace библиотеки v1.2 — `coUnit`, в v1.0/1.1 — `CfUnit`; убираются оба.
+  тип `T_MaxString`. Имена и сигнатуры взяты из исходника библиотеки coUnit 1.2.0.0 (SVN проекта counit
+  на CODESYS Forge, `tags/v1.2.0.0/`); компилятором CODESYS они не проверялись. В коде namespace библиотеки v1.2 — `coUnit`, в v1.0/1.1 — `CfUnit`; убираются оба.
 - `codesys_standard.st` — счётчики `CDS_CTU`, `CDS_CTD`, `CDS_CTUD` с сигнатурами CODESYS Standard (замена R12).
 - `codesys_conversions.st` — преобразования TIME и LTIME ↔ BYTE, WORD, DWORD, SINT, USINT, INT, UINT, DINT,
   UDINT, REAL (`TIME_TO_DINT`, `UDINT_TO_TIME`, ...), которых нет в stdlib RuSTy 1.0.6; только объявления.
