@@ -80,6 +80,9 @@
 - `st_lint` STL007: составные префиксы массивов `a` + префикс элемента (`astAlarm`, `afbAlarm`,
   `aitfDev`, `altStart`, `audiReserve`), настройка `array_element_prefixes` (`match`, `any`, `off`);
   проверка ключей `st_lint.toml` (неизвестный ключ или значение не того вида — ошибка настроек).
+- README: баннер (тёмная и светлая тема), бейджи, раздел «Демонстрация» с реальными прогонами —
+  GIF цикла `cds.py import/build/test/roundtrip` в CODESYS 3.5.17.30 и Control Win V3, снимок окна IDE
+  с собранным проектом, GIF проверок без CODESYS; схема «`src/` ↔ проект CODESYS». Медиа — в `docs/media/`.
 
 ### Changed
 

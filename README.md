@@ -1,16 +1,55 @@
-# plc-repo-template
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/media/banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/media/banner-light.svg">
+    <img alt="Баннер plc-repo-template: стойка ПЛК и цикл импорт/экспорт исходников ST между git и проектом CODESYS" src="docs/media/banner-light.svg" width="100%">
+  </picture>
+</p>
 
-[![CI](https://github.com/<GITHUB_USER>/plc-repo-template/actions/workflows/ci.yml/badge.svg)](https://github.com/<GITHUB_USER>/plc-repo-template/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://github.com/<GITHUB_USER>/plc-repo-template/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/<GITHUB_USER>/plc-repo-template/ci.yml?branch=main&style=flat-square&label=CI&labelColor=1B2736"></a>
+  <a href="LICENSE"><img alt="Лицензия MIT" src="https://img.shields.io/badge/license-MIT-56677D?style=flat-square&labelColor=1B2736"></a>
+  <img alt="CODESYS 3.5.17" src="https://img.shields.io/badge/CODESYS-3.5.17-C2410C?style=flat-square&labelColor=1B2736">
+  <img alt="IEC 61131-3" src="https://img.shields.io/badge/IEC%2061131--3-56677D?style=flat-square">
+  <a href="docs/TEST_REPORT.md"><img alt="Тесты coUnit в CODESYS Control Win: 18" src="https://img.shields.io/badge/coUnit-18%20tests-3A4B60?style=flat-square&labelColor=1B2736"></a>
+  <img alt="Тесты pytest: 528" src="https://img.shields.io/badge/pytest-528%20tests-3A4B60?style=flat-square&labelColor=1B2736">
+  <img alt="Язык: Structured Text" src="https://img.shields.io/badge/Structured%20Text-3A4B60?style=flat-square">
+  <img alt="Язык: Python" src="https://img.shields.io/badge/Python-3A4B60?style=flat-square&logo=python&logoColor=white">
+</p>
 
-Шаблон репозитория для ПЛК-проектов на CODESYS V3.5 (3.5.17.30, целевой ПЛК — ОВЕН ПЛК210).
+<p align="center">
+  <a href="#демонстрация">Демо</a> ·
+  <a href="#архитектура">Архитектура</a> ·
+  <a href="#быстрый-старт">Быстрый старт</a> ·
+  <a href="docs/">Документация</a> ·
+  <a href="#summary-en">Summary (EN)</a>
+</p>
+
+**ПЛК-код в git без бинарного проекта.** Шаблон репозитория для ПЛК-проектов на CODESYS V3.5
+(3.5.17.30, целевой ПЛК — ОВЕН ПЛК210).
 Решает главную проблему ПЛК-кода в git: проект CODESYS (`.project`) бинарный, его нельзя ревьюить
 и сливать. Здесь источник истины — текстовые файлы ST, проект собирается из них скриптом, а
 проверки (линтер, статанализ, проверка компиляции) идут в CI без CODESYS.
 
 ## Демонстрация
 
-> _Плейсхолдер: GIF «импорт → сборка → тесты CfUnit в Control Win» появится после первого
-> прогона в CODESYS._
+Всё ниже снято на машине разработки 19.10.2026 с коммита `007d648`: Windows 11, CODESYS 3.5.17.30 и
+CODESYS Control Win V3 в пользовательском процессе. Вывод команд и окно IDE — как есть, макетов нет.
+
+<p align="center">
+  <img alt="Терминал PowerShell: cds.py import --tests, build, test и roundtrip — сборка без ошибок и предупреждений, 18 из 18 тестов coUnit пройдены, экспорт совпадает с src/ и tests/ побайтно (60 файлов)" src="docs/media/demo-codesys-cycle.gif" width="900">
+</p>
+<p align="center"><sub>Полный цикл в CODESYS из консоли: импорт → сборка → 18 тестов coUnit в Control Win → roundtrip без диффа. Реальный прогон, снято term2gif.py; ожидания укорочены (весь цикл — около минуты)</sub></p>
+
+<p align="center">
+  <img alt="Окно CODESYS 3.5.17.30 с проектом, собранным из src/ и tests/: дерево устройств с FB_Example, его методами и свойством Count, папкой Tests и задачей TestTask, справа редактор FB_Example на ST" src="docs/media/shot-codesys-ide.png" width="900">
+</p>
+<p align="center"><sub>Тот же проект в IDE: <code>build/plc-repo-template-tests.project</code> после <code>cds.py import --tests</code>. Снимок окна shot.py, нижняя строка сообщений обрезана — о ней <a href="docs/BUILD_ERRORS.md">BUILD_ERRORS.md</a></sub></p>
+
+<p align="center">
+  <img alt="Терминал PowerShell: проверки без CODESYS, как в CI — ruff и mypy без замечаний, 528 тестов pytest пройдены, сборка ST, st_lint без замечаний, iec_checker без необоснованных находок, RuSTy без ошибок" src="docs/media/demo-checks.gif" width="900">
+</p>
+<p align="center"><sub>Проверки без CODESYS и без лицензии — те же шаги, что в CI: ruff, mypy, pytest, assemble, st_lint, iec_checker 0.4, RuSTy 1.0.6. Реальный прогон, снято term2gif.py; вывод pytest показан ускоренно</sub></p>
 
 ## Архитектура
 
@@ -29,6 +68,15 @@ flowchart LR
 
 ## Почему такая раскладка
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/media/diagram-layout-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/media/diagram-layout-light.svg">
+    <img alt="Схема: файлы src/ и tests/ слева, объекты проекта CODESYS справа — DUT, GVL, интерфейс, ФБ FB_Example с методами и свойством, папка Tests; задачи и библиотеки — по config.json" src="docs/media/diagram-layout-light.svg" width="900">
+  </picture>
+</p>
+<p align="center"><sub>Схема (не снимок IDE): какой файл какой объект проекта даёт <code>cds.py import</code>; реальное дерево — на снимке выше</sub></p>
+
 - **Один объект CODESYS — один файл или папка** (`src/POUs/FB_Example/FB_Example.decl.st`,
   `Reset.method.impl.st`, `Count.get.impl.st`...). Дифф в pull request показывает, какой метод
   изменился, а не «изменился бинарный файл».
@@ -38,9 +86,9 @@ flowchart LR
   инструментами — iec_checker и RuSTy — без лицензии и без Windows.
 - Контракт раскладки — [docs/LAYOUT.md](docs/LAYOUT.md), правила кода — [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Быстрый старт без железа
+## Быстрый старт
 
-Нужен Python 3.11+ (в CI — 3.12). CODESYS не нужен.
+Без железа и без CODESYS: нужен только Python 3.11+ (в CI — 3.12).
 
 ```bash
 python -m venv .venv
@@ -111,6 +159,10 @@ git push mirror --tags
 
 ## Тесты и проверки
 
+Статус CI — бейдж в шапке (workflow `.github/workflows/ci.yml`). Последний локальный прогон
+(19.10.2026): 528 тестов pytest, 18 из 18 тестов coUnit в CODESYS Control Win V3, roundtrip без диффа —
+[docs/TEST_REPORT.md](docs/TEST_REPORT.md).
+
 | Проверка | Где | Что |
 |---|---|---|
 | ruff, mypy, pytest | CI | код инструментов на Python |
@@ -157,3 +209,12 @@ CfUnit (coUnit 1.2.0.0) unit tests run in a user-mode CODESYS Control Win V3 run
 ## Лицензия
 
 [MIT](LICENSE) © 2026 <ИМЯ ФАМИЛИЯ>
+
+---
+
+<p align="center"><b>Портфолио АСУ ТП</b></p>
+<table>
+<tr><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-repo-template"><b>01 · plc-repo-template</b></a><br><sub>ST в git, сборка проекта скриптом, CI</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-process-lib">02 · plc-process-lib</a><br><sub>ФБ: AI, двигатель, ПЧ, задвижка, ПИД, тревоги</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/kns-pump-station">03 · kns-pump-station</a><br><sub>флагман: КНС, три насоса с ПЧ, модель, HMI</sub></td></tr>
+<tr><td width="33%"><a href="https://github.com/<GITHUB_USER>/kns-port-domestic">04 · kns-port-domestic</a><br><sub>перенос на Astra.IDE / MasterSCADA 4D</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-iiot-stack">05 · plc-iiot-stack</a><br><sub>OPC UA / MQTT → InfluxDB → Grafana</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/iolistgen">06 · iolistgen</a><br><sub>перечень сигналов → ST, карты Modbus, SCADA</sub></td></tr>
+<tr><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-ci-toolkit">07 · plc-ci-toolkit</a><br><sub>линтеры, сборка CODESYS, тесты, JUnit</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/s7-to-codesys">08 · s7-to-codesys</a><br><sub>конвертер SCL → ST с отчётом о переносе</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/sis-interlock-demo">09 · sis-interlock-demo</a><br><sub>ПАЗ: MooN, матрица причин и следствий</sub></td></tr>
+</table>
