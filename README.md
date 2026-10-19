@@ -497,8 +497,8 @@ ruff, mypy, pytest, assemble, st_lint и iec_checker v0.4 (бинарник за
   для репозиториев на шаблоне: те же проверки без CODESYS и сборка с тестами coUnit в CODESYS на своём
   Windows-раннере;
 - на тех же инструментах — [s7-to-codesys](https://github.com/kr0nsch/s7-to-codesys) и
-  [sis-interlock-demo](https://github.com/kr0nsch/sis-interlock-demo); флагманский проект КНС
-  (kns-pump-station) готовится.
+  [sis-interlock-demo](https://github.com/kr0nsch/sis-interlock-demo); флагманский проект КНС —
+  [kns-pump-station](https://github.com/kr0nsch/kns-pump-station).
 
 С чего начать: новый проект — с этого шаблона; CI со сборкой в CODESYS — добавить plc-ci-toolkit;
 готовые ФБ устройств — plc-process-lib. Все проекты — в таблице внизу страницы.
@@ -522,7 +522,7 @@ CODESYS 3.5.17.30 (18/18 tests), not on PLC hardware. Getting started and migrat
 
 <p align="center"><b>Портфолио АСУ ТП</b></p>
 <table>
-<tr><td width="33%"><a href="https://github.com/kr0nsch/plc-repo-template"><b>01 · plc-repo-template</b></a><br><sub>ST в git, сборка проекта скриптом, CI</sub></td><td width="33%"><a href="https://github.com/kr0nsch/plc-process-lib">02 · plc-process-lib</a><br><sub>ФБ: AI, двигатель, ПЧ, задвижка, ПИД, тревоги</sub></td><td width="33%"><span data-repo="kns-pump-station">03 · kns-pump-station</span> <sub>(готовится)</sub><br><sub>флагман: КНС, три насоса с ПЧ, модель, HMI</sub></td></tr>
+<tr><td width="33%"><a href="https://github.com/kr0nsch/plc-repo-template"><b>01 · plc-repo-template</b></a><br><sub>ST в git, сборка проекта скриптом, CI</sub></td><td width="33%"><a href="https://github.com/kr0nsch/plc-process-lib">02 · plc-process-lib</a><br><sub>ФБ: AI, двигатель, ПЧ, задвижка, ПИД, тревоги</sub></td><td width="33%"><a href="https://github.com/kr0nsch/kns-pump-station">03 · kns-pump-station</a><br><sub>флагман: КНС, три насоса с ПЧ, модель, ПМИ</sub></td></tr>
 <tr><td width="33%"><a href="https://github.com/kr0nsch/kns-port-domestic">04 · kns-port-domestic</a><br><sub>перенос на Astra.IDE / MasterSCADA 4D</sub></td><td width="33%"><a href="https://github.com/kr0nsch/plc-iiot-stack">05 · plc-iiot-stack</a><br><sub>OPC UA / MQTT → InfluxDB → Grafana</sub></td><td width="33%"><a href="https://github.com/kr0nsch/iolistgen">06 · iolistgen</a><br><sub>перечень сигналов → ST, карты Modbus, SCADA</sub></td></tr>
 <tr><td width="33%"><a href="https://github.com/kr0nsch/plc-ci-toolkit">07 · plc-ci-toolkit</a><br><sub>линтеры, сборка CODESYS, тесты, JUnit</sub></td><td width="33%"><a href="https://github.com/kr0nsch/s7-to-codesys">08 · s7-to-codesys</a><br><sub>конвертер SCL → ST с отчётом о переносе</sub></td><td width="33%"><a href="https://github.com/kr0nsch/sis-interlock-demo">09 · sis-interlock-demo</a><br><sub>ПАЗ: MooN, матрица причин и следствий</sub></td></tr>
 </table>
