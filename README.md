@@ -6,14 +6,15 @@
   </picture>
 </p>
 
-<p align="center"><b>Код ПЛК на CODESYS V3.5 в git как текст: ревью в pull request, сборка и тесты из консоли, CI без лицензии</b></p>
+<p align="center"><b>Код ПЛК ОВЕН (CODESYS V3.5 SP17) и REGUL (Astra.IDE) в git как текст: ревью в pull request, сборка и тесты из консоли, CI без лицензии</b></p>
 
 <p align="center">
   <a href="https://github.com/kr0nsch/plc-repo-template/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/kr0nsch/plc-repo-template/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <a href="https://github.com/kr0nsch/plc-repo-template/releases/latest"><img alt="Последний релиз" src="https://img.shields.io/github/v/release/kr0nsch/plc-repo-template?style=flat-square&labelColor=1B2736&color=3A4B60&label=release"></a>
   <a href="LICENSE"><img alt="Лицензия MIT" src="https://img.shields.io/badge/license-MIT-56677D?style=flat-square&labelColor=1B2736"></a>
   <img alt="CODESYS 3.5.17.30" src="https://img.shields.io/badge/CODESYS-3.5.17.30-C2410C?style=flat-square&labelColor=1B2736">
-  <a href="#тесты-и-качество"><img alt="Тесты: 18 из 18 юнит-тестов ST (coUnit) в CODESYS Control Win, 534 теста pytest" src="https://img.shields.io/badge/tests-coUnit%2018%2F18%20%C2%B7%20pytest%20534-3A4B60?style=flat-square&labelColor=1B2736"></a>
+  <a href="docs/USAGE.md#целевые-плк-овен-плк210-спк210-и-regul-r500"><img alt="Сборка без ошибок на ОВЕН ПЛК210 (CODESYS 3.5.17.30, пакет OwenTargets 3.5.17.36) и REGUL R500 61 (Astra.IDE 1.7.2.2), без загрузки в ПЛК" src="https://img.shields.io/badge/%D0%9F%D0%9B%D0%9A210%20%C2%B7%20R500-%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B0%200%20%D0%BE%D1%88%D0%B8%D0%B1%D0%BE%D0%BA-3A4B60?style=flat-square&labelColor=1B2736"></a>
+  <a href="#тесты-и-качество"><img alt="Тесты: 18 из 18 юнит-тестов ST (coUnit) в CODESYS Control Win, 536 тестов pytest" src="https://img.shields.io/badge/tests-coUnit%2018%2F18%20%C2%B7%20pytest%20536-3A4B60?style=flat-square&labelColor=1B2736"></a>
 </p>
 
 <p align="center">
@@ -25,12 +26,14 @@
   <a href="#summary-en">Summary (EN)</a>
 </p>
 
-**Шаблон репозитория для ПЛК-проектов на CODESYS V3.5 (проверено на SP17 Patch 3), где код хранится как
-текст.** Проект CODESYS (`.project`) — бинарный файл: в git его нельзя ревьюить, сравнивать и сливать.
-Здесь источник истины — файлы Structured Text в `src/` и `tests/` (объявление и тело каждого POU и
-метода — отдельные файлы); проект собирается из них одной командой, а правки, сделанные в IDE,
-выгружаются обратно в текст. Для инженеров и групп АСУ ТП, которым нужны ревью ПЛК-кода в pull request, CI и
-воспроизводимая сборка.
+**Шаблон репозитория для ПЛК-проектов ОВЕН ПЛК210/СПК210 (CODESYS V3.5 SP17 Patch 3) и REGUL R500
+(Astra.IDE), где код хранится как текст.** Обе среды — CODESYS 3.5.17 без инструментов командной работы:
+CODESYS Git, Static Analysis и Test Manager продаются только в подписке Professional Developer Edition, а
+установщик и магазин CODESYS с 2022 года не работают из России; в документации ОВЕН по CODESYS нет ни одного
+документа про тесты, Git или CI, у Astra.IDE командной разработке посвящён абзац про TortoiseSVN. Проект
+(`.project`) — бинарный файл: в git его нельзя ревьюить, сравнивать и сливать. Здесь источник истины — файлы
+Structured Text в `src/` и `tests/`; проект для ПЛК210, REGUL R500 или CODESYS Control Win собирается из них
+одной командой, а правки из IDE выгружаются обратно в текст. Сборка шаблона на ПЛК210 и R500 61 — 0 ошибок.
 
 ## Что это и зачем
 
@@ -62,18 +65,24 @@ IDE обратно в `src/`. Проверки, которым CODESYS не ну
 
 **Для кого**
 
-- инженеры и группы АСУ ТП на CODESYS V3.5, которым нужны ревью ПЛК-кода через pull request, CI и
-  воспроизводимая сборка;
+- инженеры и группы АСУ ТП на ОВЕН ПЛК210/СПК210 (CODESYS V3.5 SP17 Patch 3) и REGUL (Astra.IDE 1.7), которым
+  нужны ревью ПЛК-кода через pull request, юнит-тесты, CI и воспроизводимая сборка без Professional Developer
+  Edition;
 - интеграторы и машиностроители, которые ведут много однотипных проектов и хотят одинаковую структуру
   репозиториев; как перенести уже существующий проект — в
   [USAGE.md, раздел 10](docs/USAGE.md#10-перенос-существующего-проекта) (на реальном проекте не
   проверялось);
 - технические руководители, которые оценивают текстовый процесс разработки ПЛК-кода.
 
-**Платформа.** Проверено на CODESYS V3.5 SP17 Patch 3 (3.5.17.30, 32-битная сборка ОВЕН) и CODESYS
-Control Win V3. Целевой ПЛК — ОВЕН ПЛК210, на железе шаблон не проверялся; устройство проекта задаётся
-в `tools/codesys/config.json` → `device` (варианты — в `_alternatives`). Сборка и тесты в CODESYS —
-только на Windows; проверки без CODESYS — на Windows и Linux с Python 3.11+.
+**Платформа.** Проверено на CODESYS V3.5 SP17 Patch 3 (3.5.17.30, 32-битная сборка с FTP ОВЕН) и CODESYS
+Control Win V3: сборка, 18 тестов coUnit, roundtrip. Целевые ПЛК — сборка 20.10.2026 (компиляция, в ПЛК не
+загружалось): **ОВЕН ПЛК210** (пакет таргетов OwenTargets 3.5.17.36 с ftp.owen.ru, устройство
+`4096 / 1628 0083 / 3.5.17.35`) — `cds.py build` и `check --tests` без ошибок и предупреждений; **REGUL R500 61**
+в Astra.IDE 1.7.2.2 (`109B 0008 / 11.7.2.60`) — `cds.py build` и `check` без ошибок. Устройство выбирают
+переменные `CDS_DEVICE_TYPE`, `CDS_DEVICE_ID`, `CDS_DEVICE_VERSION` —
+[USAGE.md, «Целевые ПЛК»](docs/USAGE.md#целевые-плк-овен-плк210-спк210-и-regul-r500); тесты coUnit
+выполняются в CODESYS Control Win. Сборка и тесты в CODESYS — только на Windows; проверки без CODESYS — на
+Windows и Linux с Python 3.11+.
 
 **Другая версия или дистрибутив CODESYS V3.5** (не проверялось): путь и профиль — переменные
 `CODESYS_EXE` и `CODESYS_PROFILE`, версия устройства — `CDS_DEVICE_VERSION`, для 64-битного Control Win V3
@@ -97,7 +106,7 @@ Control Win V3. Целевой ПЛК — ОВЕН ПЛК210, на железе 
 <p align="center">
   <img alt="Терминал PowerShell: проверки без CODESYS, как в CI — ruff и mypy без замечаний, 528 тестов pytest пройдены, сборка ST, st_lint без замечаний, iec_checker без необоснованных находок, RuSTy без ошибок" src="docs/media/demo-checks.gif" width="900">
 </p>
-<p align="center"><sub>Проверки без CODESYS и без лицензии — те же шаги, что в CI: ruff, mypy, pytest, assemble, st_lint, iec_checker 0.4, RuSTy 1.0.6. Вывод pytest ускорен; на момент записи тестов было 528, сейчас 534</sub></p>
+<p align="center"><sub>Проверки без CODESYS и без лицензии — те же шаги, что в CI: ruff, mypy, pytest, assemble, st_lint, iec_checker 0.4, RuSTy 1.0.6. Вывод pytest ускорен; на момент записи тестов было 528, сейчас 536</sub></p>
 
 <details>
 <summary>Когда и с чего снято</summary>
@@ -150,7 +159,7 @@ CODESYS — на Windows с установленным CODESYS. Железо П�
    python -m pytest
    ```
 
-   Увидите: `534 passed`. Если iec_checker и RuSTy ещё не скачаны — `524 passed, 10 skipped`:
+   Увидите: `536 passed`. Если iec_checker и RuSTy ещё не скачаны — `526 passed, 10 skipped`:
    интеграционные тесты с настоящими анализаторами пропускаются.
 
 4. Линтер ST по правилам [CONTRIBUTING.md](CONTRIBUTING.md):
@@ -420,9 +429,9 @@ flowchart LR
 
 **Что проверено.** В CODESYS 3.5.17.30 / CODESYS Control Win V3 (19.10.2026, коммит `defb1d3`): сборка и
 проверка всех объектов — 0 ошибок и 0 предупреждений, 18 из 18 тестов coUnit, roundtrip без диффа
-(60 файлов) — [docs/TEST_REPORT.md](docs/TEST_REPORT.md). Без CODESYS на текущих исходниках: 534 теста
+(60 файлов) — [docs/TEST_REPORT.md](docs/TEST_REPORT.md). Без CODESYS на текущих исходниках: 536 тестов
 pytest, `st_lint` — 60 файлов без замечаний, iec_checker — 0 необоснованных находок, RuSTy — 0 ошибок.
-На ПЛК210 код не запускался.
+Сборка на ОВЕН ПЛК210 и REGUL R500 61 (20.10.2026) — 0 ошибок, 0 предупреждений; в ПЛК код не загружался.
 
 **CI** (`.github/workflows/ci.yml`) запускается на каждый push и pull request. Обязательное задание —
 ruff, mypy, pytest, assemble, st_lint и iec_checker v0.4 (бинарник закреплён по SHA-256); iec_checker
@@ -505,13 +514,15 @@ ruff, mypy, pytest, assemble, st_lint и iec_checker v0.4 (бинарник за
 
 ## Summary (EN)
 
-A GitHub template for CODESYS V3.5 PLC projects (tested on SP17 Patch 3) that keeps Structured Text in git
+A GitHub template for PLC projects on OWEN PLC210/SPK210 (CODESYS V3.5 SP17 Patch 3) and REGUL R500 (Astra.IDE,
+a CODESYS 3.5.17 OEM build) — environments without CODESYS Git, Static Analysis or Test Manager — that keeps Structured Text in git
 instead of the binary `.project`: one file per declaration and per body of each POU, method and property
 accessor (`docs/LAYOUT.md`), so a pull request shows which method changed. `python tools/codesys/cds.py`
 drives headless CODESYS to build the project from these files, run coUnit (CfUnit) unit tests in a user-mode
 Control Win V3 runtime with JUnit output, and export IDE edits back to text (byte-for-byte round trip).
 CI on Linux runs a linter, iec_checker and the RuSTy compiler without a CODESYS licence. Verified with
-CODESYS 3.5.17.30 (18/18 tests), not on PLC hardware. Getting started and migrating an existing project
+CODESYS 3.5.17.30 (18/18 tests); the same sources build with 0 errors for the OWEN PLC210 (OwenTargets 3.5.17.36)
+and REGUL R500 61 (Astra.IDE 1.7.2.2) via `CDS_DEVICE_*` variables; nothing was loaded into PLC hardware. Getting started and migrating an existing project
 (not yet tried on a real one): `docs/USAGE.md`. Docs are in Russian.
 
 ## Лицензия
