@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/<GITHUB_USER>/plc-repo-template/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/<GITHUB_USER>/plc-repo-template/ci.yml?branch=main&style=flat-square&label=CI&labelColor=1B2736"></a>
+  <a href="https://github.com/kr0nsch/plc-repo-template/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/kr0nsch/plc-repo-template/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <a href="LICENSE"><img alt="Лицензия MIT" src="https://img.shields.io/badge/license-MIT-56677D?style=flat-square&labelColor=1B2736"></a>
   <img alt="CODESYS 3.5.17" src="https://img.shields.io/badge/CODESYS-3.5.17-C2410C?style=flat-square&labelColor=1B2736">
   <img alt="IEC 61131-3" src="https://img.shields.io/badge/IEC%2061131--3-56677D?style=flat-square">
@@ -32,8 +32,10 @@
 
 ## Демонстрация
 
-Всё ниже снято на машине разработки 19.10.2026 с коммита `007d648`: Windows 11, CODESYS 3.5.17.30 и
-CODESYS Control Win V3 в пользовательском процессе. Вывод команд и окно IDE — как есть, макетов нет.
+Всё ниже снято на машине разработки 19.10.2026: Windows 11, CODESYS 3.5.17.30 и CODESYS Control Win V3
+в пользовательском процессе. Записи терминала — с коммита `007d648`, снимок IDE — с исходников версии 1.0.0
+(от `007d648` они отличаются только строкой «Автор» в заголовках POU). Вывод команд и окно IDE — как есть,
+макетов нет.
 
 <p align="center">
   <img alt="Терминал PowerShell: cds.py import --tests, build, test и roundtrip — сборка без ошибок и предупреждений, 18 из 18 тестов coUnit пройдены, экспорт совпадает с src/ и tests/ побайтно (60 файлов)" src="docs/media/demo-codesys-cycle.gif" width="900">
@@ -140,8 +142,10 @@ CODESYS Control Win V3, запущенном пользовательским п
 ## Как создать проект из шаблона
 
 1. На GitHub: **Use this template → Create a new repository**.
-2. Заменить плейсхолдеры `<ИМЯ ФАМИЛИЯ>` и `<GITHUB_USER>` (LICENSE, README, CONTRIBUTING.md, заголовки ST):
-   `git grep -n -e "<ИМЯ ФАМИЛИЯ>" -e "<GITHUB_USER>"`.
+2. Заменить автора `kr0nsch` и имя репозитория на свои (LICENSE, README — бейджи и подвал портфолио,
+   CONTRIBUTING.md, заголовки ST, `tools/codesys/config.json: library.author`):
+   `git grep -n -e kr0nsch -e plc-repo-template -- . ":!tools/tests"`. Эталоны и данные тестов
+   `tools/tests/` от автора проекта не зависят — их не трогать.
 3. Удалить пример (`FB_Example`, `ST_Example*`, константы `EXAMPLE_*`) или переименовать под задачу.
 4. Обновить `CHANGELOG.md`, `docs/ASSUMPTIONS.md` и `tools/codesys/config.json` (для библиотеки —
    раздел `library`: название, компания, версия, пространство имён). Тесты `tools/tests/` берут
@@ -207,13 +211,13 @@ CfUnit (coUnit 1.2.0.0) unit tests run in a user-mode CODESYS Control Win V3 run
 
 ## Лицензия
 
-[MIT](LICENSE) © 2026 <ИМЯ ФАМИЛИЯ>
+[MIT](LICENSE) © 2026 kr0nsch
 
 ---
 
 <p align="center"><b>Портфолио АСУ ТП</b></p>
 <table>
-<tr><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-repo-template"><b>01 · plc-repo-template</b></a><br><sub>ST в git, сборка проекта скриптом, CI</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-process-lib">02 · plc-process-lib</a><br><sub>ФБ: AI, двигатель, ПЧ, задвижка, ПИД, тревоги</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/kns-pump-station">03 · kns-pump-station</a><br><sub>флагман: КНС, три насоса с ПЧ, модель, HMI</sub></td></tr>
-<tr><td width="33%"><a href="https://github.com/<GITHUB_USER>/kns-port-domestic">04 · kns-port-domestic</a><br><sub>перенос на Astra.IDE / MasterSCADA 4D</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-iiot-stack">05 · plc-iiot-stack</a><br><sub>OPC UA / MQTT → InfluxDB → Grafana</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/iolistgen">06 · iolistgen</a><br><sub>перечень сигналов → ST, карты Modbus, SCADA</sub></td></tr>
-<tr><td width="33%"><a href="https://github.com/<GITHUB_USER>/plc-ci-toolkit">07 · plc-ci-toolkit</a><br><sub>линтеры, сборка CODESYS, тесты, JUnit</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/s7-to-codesys">08 · s7-to-codesys</a><br><sub>конвертер SCL → ST с отчётом о переносе</sub></td><td width="33%"><a href="https://github.com/<GITHUB_USER>/sis-interlock-demo">09 · sis-interlock-demo</a><br><sub>ПАЗ: MooN, матрица причин и следствий</sub></td></tr>
+<tr><td width="33%"><a href="https://github.com/kr0nsch/plc-repo-template"><b>01 · plc-repo-template</b></a><br><sub>ST в git, сборка проекта скриптом, CI</sub></td><td width="33%"><a href="https://github.com/kr0nsch/plc-process-lib">02 · plc-process-lib</a><br><sub>ФБ: AI, двигатель, ПЧ, задвижка, ПИД, тревоги</sub></td><td width="33%"><span data-repo="kns-pump-station">03 · kns-pump-station</span> <sub>(готовится)</sub><br><sub>флагман: КНС, три насоса с ПЧ, модель, HMI</sub></td></tr>
+<tr><td width="33%"><span data-repo="kns-port-domestic">04 · kns-port-domestic</span> <sub>(готовится)</sub><br><sub>перенос на Astra.IDE / MasterSCADA 4D</sub></td><td width="33%"><span data-repo="plc-iiot-stack">05 · plc-iiot-stack</span> <sub>(готовится)</sub><br><sub>OPC UA / MQTT → InfluxDB → Grafana</sub></td><td width="33%"><span data-repo="iolistgen">06 · iolistgen</span> <sub>(готовится)</sub><br><sub>перечень сигналов → ST, карты Modbus, SCADA</sub></td></tr>
+<tr><td width="33%"><a href="https://github.com/kr0nsch/plc-ci-toolkit">07 · plc-ci-toolkit</a><br><sub>линтеры, сборка CODESYS, тесты, JUnit</sub></td><td width="33%"><a href="https://github.com/kr0nsch/s7-to-codesys">08 · s7-to-codesys</a><br><sub>конвертер SCL → ST с отчётом о переносе</sub></td><td width="33%"><a href="https://github.com/kr0nsch/sis-interlock-demo">09 · sis-interlock-demo</a><br><sub>ПАЗ: MooN, матрица причин и следствий</sub></td></tr>
 </table>
